@@ -648,20 +648,24 @@ function renderGroup(key, prevKey) {
 
   // GROUP個人ランキング
   const mk2=mKey(key);
+  const mk1=prevKey?mKey(prevKey):null;
   const allCast=[
     ...CREATE_INDIV.map(d=>({...d,store:'CREATE'})),
     ...PLUS_INDIV.map(d=>({...d,store:'PLUS'}))
   ];
   const ranked=allCast.filter(d=>d[mk2]>0).sort((a,b)=>(b[mk2]??0)-(a[mk2]??0));
   document.getElementById('groupRankTable').innerHTML=`
-    <thead><tr><th>#</th><th style="text-align:left">名前</th><th>店舗</th><th>売上</th></tr></thead>
-    <tbody>${ranked.map((d,i)=>`
-      <tr>
+    <thead><tr><th>#</th><th style="text-align:left">名前</th><th>店舗</th><th>売上</th>${mk1?'<th>前月比</th>':''}</tr></thead>
+    <tbody>${ranked.map((d,i)=>{
+      const cur=d[mk2]??0, prv=mk1?(d[mk1]??0):0;
+      const momHtml=mk1?(prv===0?'<td style="color:#666">—</td>':`<td>${fmtMoM(cur,prv)}</td>`):'';
+      return `<tr>
         <td style="color:#c4974a;font-family:'EB Garamond',serif;font-size:16px">${i+1}</td>
         <td>${d.n}</td>
         <td><span style="font-size:9px;background:${d.store==='CREATE'?'rgba(196,151,74,0.15)':'rgba(109,184,109,0.15)'};color:${d.store==='CREATE'?'#c4974a':'#6db86d'};padding:2px 7px;border-radius:3px;letter-spacing:.08em">${d.store}</span></td>
         <td style="font-family:'EB Garamond',serif;color:#e8e8e8">${d[mk2]}万</td>
-      </tr>`).join('')}
+        ${momHtml}
+      </tr>`;}).join('')}
     </tbody>`;
 
   // Compare table
