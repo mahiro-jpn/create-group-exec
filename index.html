@@ -198,6 +198,10 @@ body{
     <div class="card-title">店舗比較サマリー</div>
     <table class="dtable" id="groupCmpTable"></table>
   </div>
+  <div class="card">
+    <div class="card-title">GROUP 個人売上ランキング — 当月</div>
+    <table class="dtable" id="groupRankTable"></table>
+  </div>
 </div>
 
 <!-- ========== CREATE ========== -->
@@ -641,6 +645,24 @@ function renderGroup(key, prevKey) {
   }
   document.getElementById('createAch').innerHTML=achHtml(c.CREATE);
   document.getElementById('plusAch').innerHTML=achHtml(c.PLUS);
+
+  // GROUP個人ランキング
+  const mk2=mKey(key);
+  const allCast=[
+    ...CREATE_INDIV.map(d=>({...d,store:'CREATE'})),
+    ...PLUS_INDIV.map(d=>({...d,store:'PLUS'}))
+  ];
+  const ranked=allCast.filter(d=>d[mk2]>0).sort((a,b)=>(b[mk2]??0)-(a[mk2]??0));
+  document.getElementById('groupRankTable').innerHTML=`
+    <thead><tr><th>#</th><th style="text-align:left">名前</th><th>店舗</th><th>売上</th></tr></thead>
+    <tbody>${ranked.map((d,i)=>`
+      <tr>
+        <td style="color:#c4974a;font-family:'EB Garamond',serif;font-size:16px">${i+1}</td>
+        <td>${d.n}</td>
+        <td><span style="font-size:9px;background:${d.store==='CREATE'?'rgba(196,151,74,0.15)':'rgba(109,184,109,0.15)'};color:${d.store==='CREATE'?'#c4974a':'#6db86d'};padding:2px 7px;border-radius:3px;letter-spacing:.08em">${d.store}</span></td>
+        <td style="font-family:'EB Garamond',serif;color:#e8e8e8">${d[mk2]}万</td>
+      </tr>`).join('')}
+    </tbody>`;
 
   // Compare table
   document.getElementById('groupCmpTable').innerHTML=`
