@@ -728,57 +728,20 @@ function renderCreate(key, prevKey) {
     },
   });
 
-  // Teams
-  const teams=CREATE_TEAMS[key]||[];
-  if(cTeam) cTeam.destroy();
-  cTeam=new Chart(document.getElementById('cTeamChart'),{
-    type:'bar',
-    data:{
-      labels:teams.map(t=>t.n),
-      datasets:[{
-        label:'売上（万）',
-        data:teams.map(t=>Math.round(t.s/10000)),
-        backgroundColor:['#c4974acc','#d4845ccc','#7aadaacc'],
-        borderColor:['#c4974a','#d4845c','#7aadaa'],
-        borderWidth:1,borderRadius:3,
-      }],
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,indexAxis:'y',
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.x}万`}}},
-      scales:{
-        x:{ticks:{color:'#fff',font:{size:10},callback:v=>v+'万'},grid:{color:'#2a2a2a'}},
-        y:{ticks:{color:'#fff',font:{size:11}},grid:{color:'#2a2a2a'}},
-      },
-    },
-  });
-
-  document.getElementById('cTeamList').innerHTML=teams.map(t=>`
-    <div style="padding:12px 0;border-bottom:1px solid #252525;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-        <span style="font-size:12px;color:#fff;">${t.n}</span>
-        <span style="font-family:'EB Garamond',serif;font-size:18px;color:${t.r>=100?'#6db86d':'#c4974a'}">${t.r}%</span>
-      </div>
-      <div style="font-size:11px;color:#fff;margin-bottom:5px;">${Math.round(t.s/10000)}万円</div>
-      <div class="ach-bar-bg"><div class="ach-bar ${achClass(t.r)}" style="width:${Math.min(t.r,100)}%"></div></div>
-    </div>`).join('');
-
-  // Individual table — sorted by current month
+  // Individual table — sorted by current month, dynamic columns (last 3 months)
   const sorted=[...CREATE_INDIV].sort((a,b)=>(b[mk]??-1)-(a[mk]??-1));
+  const recentMonths=MONTHS.slice(-3);
   document.getElementById('cIndivTable').innerHTML=`
     <thead><tr>
       <th style="text-align:left">スタッフ</th>
-      <th style="color:${key==='2026-03'?'#c4974a':'#555'}">3月</th>
-      <th style="color:${key==='2026-04'?'#c4974a':'#555'}">4月</th>
-      <th style="color:${key==='2026-05'?'#c4974a':'#555'}">5月</th>
+      ${recentMonths.map(m=>`<th style="color:${m===key?'#c4974a':'#555'}">${parseInt(m.split('-')[1])}月</th>`).join('')}
     </tr></thead>
-    <tbody>${sorted.map(d=>`
-      <tr>
-        <td>${d.n}${d.tag3?`<span class="badge badge-new">${d.tag3}</span>`:''}</td>
-        <td style="color:${key==='2026-03'?'#e0e0e0':'#555'}">${d.m3??'—'}</td>
-        <td style="color:${key==='2026-04'?'#e0e0e0':'#555'}">${d.m4??'—'}</td>
-        <td style="color:${key==='2026-05'?'#e0e0e0':'#555'}">${d.m5??'—'}</td>
-      </tr>`).join('')}</tbody>`;
+    <tbody>${sorted.map(d=>{
+      const tagHtml=recentMonths.map(m=>{const t=d['tag'+mKey(m)];return t?`<span class="badge badge-new">${t}</span>`:''}).join('');
+      return`<tr>
+        <td>${d.n}${tagHtml}</td>
+        ${recentMonths.map(m=>{const mk2=mKey(m);return`<td style="color:${m===key?'#e0e0e0':'#555'}">${d[mk2]??'—'}</td>`;}).join('')}
+      </tr>`;}).join('')}</tbody>`;
 }
 
 // ============================================================
@@ -846,19 +809,16 @@ function renderPlus(key, prevKey) {
     }
     return tags.join('');
   }
+  const recentMonthsP=MONTHS.slice(-3);
   document.getElementById('pIndivTable').innerHTML=`
     <thead><tr>
       <th style="text-align:left">スタッフ</th>
-      <th style="color:${key==='2026-03'?'#c4974a':'#555'}">3月</th>
-      <th style="color:${key==='2026-04'?'#c4974a':'#555'}">4月</th>
-      <th style="color:${key==='2026-05'?'#c4974a':'#555'}">5月</th>
+      ${recentMonthsP.map(m=>`<th style="color:${m===key?'#c4974a':'#555'}">${parseInt(m.split('-')[1])}月</th>`).join('')}
     </tr></thead>
     <tbody>${sorted.map(d=>`
       <tr>
         <td>${d.n}${tagHtml(d)}</td>
-        <td style="color:${key==='2026-03'?'#e0e0e0':'#555'}">${d.m3!=null?d.m3:'—'}</td>
-        <td style="color:${key==='2026-04'?'#e0e0e0':'#555'}">${d.m4!=null?d.m4:'—'}</td>
-        <td style="color:${key==='2026-05'?'#e0e0e0':'#555'}">${d.m5!=null?d.m5:'—'}</td>
+        ${recentMonthsP.map(m=>{const mk2=mKey(m);return`<td style="color:${m===key?'#e0e0e0':'#555'}">${d[mk2]!=null?d[mk2]:'—'}</td>`;}).join('')}
       </tr>`).join('')}</tbody>`;
 }
 
