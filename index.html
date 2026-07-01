@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CREATE GROUP — EXEC DASHBOARD</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Noto+Sans+JP:wght@100;300;400&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #1c1c1c;
+  --card: #212121;
+  --border: #2e2e2e;
+  --gold: #c4974a;
+  --orange: #d4845c;
+  --text: #e8e8e8;
+  --muted: #888;
+  --dim: #555;
+  --green: #6db86d;
+  --red: #c76b6b;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 300;
+  padding: 24px 28px;
+  min-height: 100vh;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.logo { font-family: 'EB Garamond', serif; font-size: 24px; color: var(--gold); letter-spacing: .12em; }
+.logo-sub { font-size: 10px; color: var(--dim); letter-spacing: .2em; margin-top: 3px; }
+.month-nav { display: flex; gap: 8px; align-items: center; }
+.nav-btn {
+  background: #252525; border: 1px solid #3a3a3a; color: #aaa;
+  width: 30px; height: 30px; border-radius: 4px; cursor: pointer;
+  font-size: 18px; line-height: 28px; text-align: center; transition: all .2s;
+}
+.nav-btn:hover { background: var(--gold); border-color: var(--gold); color: var(--bg); }
+.month-label { font-size: 14px; min-width: 80px; text-align: center; }
+
+/* KPI */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+.kpi { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 16px; }
+.kpi-label { font-size: 10px; color: var(--dim); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+.kpi-value { font-family: 'EB Garamond', serif; font-size: 28px; color: var(--gold); line-height: 1; }
+.kpi-unit { font-size: 11px; color: var(--muted); margin-left: 2px; }
+.kpi-change { font-size: 11px; margin-top: 5px; min-height: 15px; }
+.up { color: var(--green); } .down { color: var(--red); } .flat { color: #666; }
+
+/* Cumulative */
+.cumul-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+}
+.cumul-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+}
+.cumul-title { font-size: 10px; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; }
+.cumul-year { font-size: 11px; color: var(--dim); }
+.cumul-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 16px; }
+.cumul-item {}
+.cumul-item-label { font-size: 10px; color: var(--dim); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+.cumul-item-val { font-family: 'EB Garamond', serif; font-size: 26px; color: var(--gold); line-height: 1; }
+.cumul-item-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.cumul-progress { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.cumul-bar-row { display: flex; gap: 4px; margin-top: 6px; }
+.cumul-month-bar {
+  flex: 1; height: 24px; border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; letter-spacing: .04em; position: relative;
+}
+.cumul-bar-label { font-size: 9px; color: var(--dim); margin-bottom: 4px; }
+.cumul-status { font-size: 11px; color: var(--muted); }
+
+/* Cards / Grids */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 18px; }
+.card-title { font-size: 10px; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 14px; }
+.grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 12px; }
+.grid-equal { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+
+/* Store Cards */
+.store-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 18px; }
+.store-name { font-family: 'EB Garamond', serif; font-size: 16px; letter-spacing: .08em; margin-bottom: 14px; }
+.store-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.store-stat { text-align: center; padding: 10px 4px; border: 1px solid var(--border); border-radius: 4px; }
+.store-stat-value { font-family: 'EB Garamond', serif; font-size: 20px; }
+.store-stat-label { font-size: 10px; color: var(--dim); letter-spacing: .06em; margin-top: 2px; }
+.achieve-wrap { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+.achieve-bar-bg { background: #2a2a2a; border-radius: 2px; height: 4px; margin-top: 6px; }
+.achieve-bar-fill { height: 4px; border-radius: 2px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: 14px; }
+.tab-btn {
+  padding: 6px 18px; font-size: 11px; letter-spacing: .06em;
+  background: #252525; border: 1px solid var(--border); border-radius: 4px;
+  color: var(--dim); cursor: pointer; transition: all .2s;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.tab-btn.active-honten { background: var(--gold); border-color: var(--gold); color: var(--bg); }
+.tab-btn.active-plus { background: var(--orange); border-color: var(--orange); color: var(--bg); }
+.tab-btn.active-group { background: #5a7a9a; border-color: #5a7a9a; color: #fff; }
+
+/* Member Table */
+.dtable { width: 100%; border-collapse: collapse; font-size: 12px; }
+.dtable th {
+  font-size: 10px; color: var(--dim); letter-spacing: .06em; text-transform: uppercase;
+  padding: 6px 8px; border-bottom: 1px solid var(--border); font-weight: 300; text-align: right;
+}
+.dtable th:first-child { text-align: center; }
+.dtable th:nth-child(2) { text-align: left; }
+.dtable td { padding: 8px 8px; border-bottom: 1px solid #272727; text-align: right; color: #bbb; }
+.dtable td:first-child { text-align: center; color: var(--dim); font-size: 11px; }
+.dtable td:nth-child(2) { text-align: left; }
+.dtable tr:last-child td { border-bottom: none; }
+.dtable tr:hover td { background: #252525; }
+.rank-gold   { color: var(--gold) !important; }
+.rank-silver { color: #9a9a9a !important; }
+.rank-bronze { color: #8a5a30 !important; }
+.store-badge {
+  font-size: 9px; color: var(--dim); background: #2a2a2a;
+  border: 1px solid var(--border); border-radius: 3px;
+  padding: 1px 5px; margin-left: 5px; vertical-align: middle;
+  white-space: nowrap;
+}
+.tbl-dim { color: var(--dim) !important; }
+.tbl-no-data { color: #3a3a3a !important; }
+
+/* Spark bar */
+.spark { display: inline-flex; align-items: flex-end; gap: 2px; height: 28px; vertical-align: middle; }
+.spark-bar { width: 8px; border-radius: 1px 1px 0 0; }
+
+/* Divider */
+.section-gap { margin-bottom: 12px; }
+
+/* Intel Panel */
+.intel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+@media (max-width: 768px) {
+  body { padding: 14px 16px; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-equal { grid-template-columns: 1fr; }
+  .store-stat-row { grid-template-columns: 1fr 1fr; }
+  .cumul-grid { grid-template-columns: 1fr; gap: 12px; }
+  .intel-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="logo">CREATE GROUP</div>
+    <div class="logo-sub">EXECUTIVE DASHBOARD</div>
+  </div>
+  <div class="month-nav">
+    <button class="nav-btn" onclick="navigate(-1)">&#8249;</button>
+    <div class="month-label" id="monthLabel"></div>
+    <button class="nav-btn" onclick="navigate(1)">&#8250;</button>
+  </div>
+</div>
+
+<!-- KPI -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- Intel Panel -->
+<div id="intelSection" style="margin-bottom:12px"></div>
+
+<!-- 年間累積 -->
+<div class="cumul-section" id="cumulSection"></div>
+
+<!-- 売上推移 + シェア -->
+<div class="grid-2">
+  <div class="card">
+    <div class="card-title">グループ売上推移（万円）</div>
+    <div style="position:relative;height:200px"><canvas id="trendChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">店舗シェア</div>
+    <div style="position:relative;height:200px"><canvas id="shareChart"></canvas></div>
+  </div>
+</div>
+
+<!-- 店舗別カード -->
+<div class="grid-equal section-gap" id="storeCards"></div>
+
+<!-- チーム別 -->
+<div id="teamsSection"></div>
+
+<!-- 個人別ランキング -->
+<div class="card">
+  <div class="card-title">個人別売上ランキング</div>
+  <div class="tabs">
+    <button class="tab-btn active-honten" id="tab-honten" onclick="switchTab('honten')">CREATE 本店</button>
+    <button class="tab-btn" id="tab-plus"   onclick="switchTab('plus')">CREATE PLUS</button>
+    <button class="tab-btn" id="tab-group"  onclick="switchTab('group')">GROUP</button>
+  </div>
+  <table class="dtable" id="memberTable"></table>
+</div>
+
+<script>
+// ====================================================================
+// DATA
+// ====================================================================
+
+const MONTHS = ['2026-03', '2026-04', '2026-05'];
+let currentIdx = 2;
+let currentTab = 'honten';
+let trendChart, shareChart;
+
+// 月次サマリー
+const MONTHLY = {
+  '2026-03': {
+    honten: { sales: 23260000, customers: 531, newCustomers: 119, repeatFree: 36, regular: 412, target: 30000000 },
+    plus:   { sales: 18020000, customers: 412, newCustomers: 111, repeatCustomers: 70, avgSpend: 43738, unpaidRate: 6.0, target: 25000000 },
+  },
+  '2026-04': {
+    honten: { sales: 19470000, customers: 519, newCustomers: 129, repeatFree: 30, regular: 390, target: 27820000 },
+    plus:   { sales: 23910000, customers: 492, newCustomers: 92,  repeatCustomers: 155, avgSpend: 48600, unpaidRate: 6.6, target: 25000000 },
+  },
+  '2026-05': {
+    honten: { sales: 27230000, customers: 532, newCustomers: 78,  repeatFree: 26, regular: 454, target: 29000000 },
+    plus:   { sales: 27300000, customers: 468, newCustomers: 69,  repeatCustomers: 197, avgSpend: 58331, unpaidRate: 2.8, target: 25000000 },
+  },
+};
+
+// 13ヶ月推移（万円）  R7=2025, R8=2026
+const TREND_13M = [
+  { label: 'R7.5',  honten: 1806, plus: null },
+  { label: 'R7.6',  honten: 1813, plus: null },
+  { label: 'R7.7',  honten: 1581, plus: null },
+  { label: 'R7.8',  honten: 1946, plus: null },
+  { label: 'R7.9',  honten: 1708, plus: null },
+  { label: 'R7.10', honten: 1592, plus: null },
+  { label: 'R7.11', honten: 2033, plus: null },
+  { label: 'R7.12', honten: 2003, plus: null },
+  { label: 'R8.1',  honten: 2100, plus: null },
+  { label: 'R8.2',  honten: 2005, plus: null },
+  { label: 'R8.3',  honten: 2326, plus: 1802 },
+  { label: 'R8.4',  honten: 1947, plus: 2391 },
+  { label: 'R8.5 ', honten: 2723, plus: 2730 },
+];
+
+// 個人別データ
+// m: [3月売上, 4月売上, 5月売上] (万円)
+// t: [3月卓数, 4月卓数, 5月卓数] — 各月 {r:正規, n:新規, p:リピート}
+// ※ t はデータ入力待ち。0のものは「—」表示
+const MEMBERS = {
+  honten: [
+    { name: 'Revelo',    m: [81,  111, 365], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'KEN',       m: [322,  71, 108], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '神鬼',      m: [170, 115, 243], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'エイト',    m: [50,   98, 172], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '太陽',      m: [89,   75, 158], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '一歩',      m: [187, 133, 151], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'RYOTO',     m: [224, 204, 200], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '綾',        m: [157, 193, 135], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '夏目',      m: [133, 113, 105], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'Rui',       m: [106,  78,  71], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'まきばおう', m: [63,   81,  56], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '椿',        m: [4,    30,  79], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'コタロー',  m: [36,   41,  36], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'SORA',      m: [33,   60,  74], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '虎丸',      m: [27,    2,   0], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'SOMARUKA',  m: [3,    13,  18], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'ウタ',      m: [0,     6,  18], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'KAZU',      m: [5,     2,   5], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'GON',       m: [2,     6,   3], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '十座',      m: [2,     1,   3], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'ライム',    m: [0,     0,   0], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'クラマ',    m: [0,     0,   2], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '蘭',        m: [0,     0,   0], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+  ],
+  plus: [
+    { name: 'はるぼー',  m: [402, 539, 834], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'ショコラ',  m: [86,   82, 343], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'リト',      m: [266, 315, 230], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'ひより',    m: [104, 290, 153], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '凱莉',      m: [225, 204, 181], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '摩生斗',    m: [123, 144, 104], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '慶次',      m: [82,   86,  76], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'のん',      m: [18,   43,  32], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '澪夢',      m: [3,    13,  13], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'ルハン',    m: [0,    11,  21], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'ツバサ',    m: [2,     4,   9], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '夢斗',      m: [0,     0,   7], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '恋',        m: [0,     0,   6], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '百',        m: [0,     6,   0], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'ウル',      m: [3,     6,   3], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'GON',       m: [0,     0,   1], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'アキ',      m: [1,     0,   0], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '瑠碧',      m: [0,     0,   3], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '愛',        m: [0,     0,   0], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: 'ラル',      m: [0,     0,   0], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+    { name: '龍雅',      m: [0,     0,   0], t: [{r:0,n:0,p:0},{r:0,n:0,p:0},{r:0,n:0,p:0}] },
+  ],
+};
+
+// 年間目標 (万円)
+const ANNUAL_TARGET = 100000; // 10億
+
+// チーム別データ
+const TEAMS_DATA = {
+  '2026-03': { honten: [
+    { name: 'TOPチーム',    sales: 685,  achieve: 86  },
+    { name: 'CREATEチーム', sales: 805,  achieve: 58  },
+    { name: '新勢力チーム', sales: 816,  achieve: 102 },
+  ]},
+  '2026-04': { honten: [
+    { name: 'TOPチーム',    sales: 862,  achieve: 78  },
+    { name: 'CREATEチーム', sales: 695,  achieve: 77  },
+    { name: '新勢力チーム', sales: 376,  achieve: 48  },
+  ]},
+  '2026-05': { honten: [
+    { name: 'TOPチーム',    sales: 585,  achieve: 73  },
+    { name: 'CREATEチーム', sales: 1305, achieve: 104 },
+    { name: '新勢力チーム', sales: 786,  achieve: 93  },
+  ]},
+};
+
+// ====================================================================
+// Helpers
+// ====================================================================
+
+function fmt(n) {
+  if (n >= 100000000) return (n / 100000000).toFixed(2) + '億';
+  if (n >= 10000)     return Math.round(n / 10000) + '万';
+  return n.toLocaleString();
+}
+
+function fmtWan(n) { // 万円単位
+  return n >= 10000 ? (n / 10000).toFixed(1) + '億' : n + '万';
+}
+
+function fmtChange(cur, prev) {
+  if (!prev) return '';
+  const pct = ((cur - prev) / prev * 100).toFixed(1);
+  const cls  = Number(pct) > 0 ? 'up' : Number(pct) < 0 ? 'down' : 'flat';
+  const sign = Number(pct) > 0 ? '▲' : '▼';
+  return `<span class="${cls}">${sign}${Math.abs(pct)}% 前月比</span>`;
+}
+
+function formatMonthLabel(key) {
+  const [y, m] = key.split('-');
+  return `${y}年${parseInt(m)}月`;
+}
+
+function achieveColor(pct) {
+  return pct >= 100 ? 'var(--green)' : pct >= 80 ? 'var(--gold)' : 'var(--red)';
+}
+
+// ====================================================================
+// KPI
+// ====================================================================
+
+function renderKPI(key, prevKey) {
+  const cur  = MONTHLY[key];
+  const prev = prevKey ? MONTHLY[prevKey] : null;
+
+  const totalSales = cur.honten.sales + cur.plus.sales;
+  const prevSales  = prev ? prev.honten.sales + prev.plus.sales : 0;
+  const totalCust  = cur.honten.customers + cur.plus.customers;
+  const prevCust   = prev ? prev.honten.customers + prev.plus.customers : 0;
+  const hontenAch  = Math.round(cur.honten.sales / cur.honten.target * 100);
+  const plusAch    = Math.round(cur.plus.sales   / cur.plus.target   * 100);
+
+  const kpis = [
+    {
+      label: 'グループ総売上',
+      value: fmt(totalSales),
+      change: prev ? fmtChange(totalSales, prevSales) : '',
+    },
+    {
+      label: '総来客数',
+      value: totalCust.toLocaleString(),
+      unit: '名',
+      change: prev ? fmtChange(totalCust, prevCust) : '',
+    },
+    {
+      label: '本店 達成率',
+      value: hontenAch,
+      unit: '%',
+      valueColor: achieveColor(hontenAch),
+      change: '',
+    },
+    {
+      label: 'PLUS 達成率',
+      value: plusAch,
+      unit: '%',
+      valueColor: achieveColor(plusAch),
+      change: prev ? (() => {
+        const diff = (cur.plus.unpaidRate - prev.plus.unpaidRate).toFixed(1);
+        const cls = Number(diff) < 0 ? 'up' : Number(diff) > 0 ? 'down' : 'flat';
+        const sign = Number(diff) < 0 ? '▼' : '▲';
+        return `<span class="${cls}">未収 ${sign}${Math.abs(diff)}pt (${cur.plus.unpaidRate}%)</span>`;
+      })() : `<span style="color:var(--dim)">未収 ${cur.plus.unpaidRate}%</span>`,
+    },
+  ];
+
+  document.getElementById('kpiRow').innerHTML = kpis.map(k => `
+    <div class="kpi">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value" style="color:${k.valueColor || 'var(--gold)'}">
+        ${k.value}<span class="kpi-unit">${k.unit || ''}</span>
+      </div>
+      <div class="kpi-change">${k.change}</div>
+    </div>
+  `).join('');
+}
+
+// ====================================================================
+// 年間累積
+// ====================================================================
+
+function renderCumulative() {
+  const thisYear = new Date().getFullYear().toString(); // "2026"で動作、2027以降は自動的に空
+
+  // 今年のデータを集計
+  let totalSales = 0, hontenSales = 0, plusSales = 0;
+  let monthsEntered = 0;
+  const ALL_MONTHS_2026 = ['2026-03','2026-04','2026-05','2026-06','2026-07','2026-08','2026-09','2026-10','2026-11','2026-12'];
+
+  ALL_MONTHS_2026.forEach(key => {
+    if (key.startsWith(thisYear) && MONTHLY[key]) {
+      totalSales  += MONTHLY[key].honten.sales + MONTHLY[key].plus.sales;
+      hontenSales += MONTHLY[key].honten.sales;
+      plusSales   += MONTHLY[key].plus.sales;
+      monthsEntered++;
+    }
+  });
+
+  const totalWan   = Math.round(totalSales / 10000);
+  const hontenWan  = Math.round(hontenSales / 10000);
+  const plusWan    = Math.round(plusSales / 10000);
+  const remainMonths = 10 - monthsEntered; // 2026は3月〜12月の10ヶ月
+  const monthlyAvg = monthsEntered > 0 ? Math.round(totalWan / monthsEntered) : 0;
+  const projected  = totalWan + (monthlyAvg * remainMonths);
+  const progressPct = Math.min(Math.round(totalWan / ANNUAL_TARGET * 100), 100);
+  const label2026 = thisYear === '2026' ? '2026年' : thisYear + '年';
+
+  // 月別バー（3月〜12月）
+  const MONTH_LABELS = ['3','4','5','6','7','8','9','10','11','12'];
+  const monthBars = ALL_MONTHS_2026.map((key, i) => {
+    const hasData = !!MONTHLY[key];
+    const isCurrent = key === MONTHS[currentIdx];
+    const val = hasData ? Math.round((MONTHLY[key].honten.sales + MONTHLY[key].plus.sales) / 10000) : 0;
+    const maxVal = Math.max(...ALL_MONTHS_2026.map(k => MONTHLY[k] ? Math.round((MONTHLY[k].honten.sales + MONTHLY[k].plus.sales) / 10000) : 0), 1);
+    const heightPct = hasData ? Math.max(Math.round(val / maxVal * 100), 5) : 0;
+    const bg = hasData ? (isCurrent ? 'var(--gold)' : '#3a3a3a') : '#252525';
+    const textColor = hasData ? (isCurrent ? 'var(--bg)' : 'var(--dim)') : '#2e2e2e';
+    return `
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+        <div style="font-size:9px;color:${hasData ? (isCurrent ? 'var(--gold)' : 'var(--dim)') : '#333'}">${hasData ? val + '万' : ''}</div>
+        <div style="width:100%;height:32px;display:flex;align-items:flex-end;justify-content:center">
+          <div style="width:100%;height:${heightPct}%;min-height:${hasData ? 3 : 0}px;background:${bg};border-radius:1px 1px 0 0"></div>
+        </div>
+        <div style="font-size:9px;color:${hasData ? 'var(--dim)' : '#333'}">${MONTH_LABELS[i]}</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('cumulSection').innerHTML = `
+    <div class="cumul-head">
+      <div class="cumul-title">${label2026} 累積実績</div>
+      <div class="cumul-year" style="color:var(--dim)">${monthsEntered}ヶ月入力済み / 残り${remainMonths}ヶ月 | 年換算 ${fmtWan(projected)}</div>
+    </div>
+    <div class="cumul-grid">
+      <div class="cumul-item">
+        <div class="cumul-item-label">グループ累積</div>
+        <div class="cumul-item-val">${fmtWan(totalWan)}</div>
+        <div style="margin-top:8px">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--dim);margin-bottom:4px">
+            <span>年間目標 10億</span>
+            <span style="color:${achieveColor(progressPct)}">${progressPct}%</span>
+          </div>
+          <div style="background:#2a2a2a;border-radius:2px;height:4px">
+            <div style="width:${progressPct}%;height:4px;background:${achieveColor(progressPct)};border-radius:2px"></div>
+          </div>
+          <div style="font-size:10px;color:var(--dim);margin-top:4px">月平均 ${fmtWan(monthlyAvg)} / 月</div>
+        </div>
+      </div>
+      <div class="cumul-item">
+        <div class="cumul-item-label">CREATE 本店</div>
+        <div class="cumul-item-val" style="font-size:22px">${fmtWan(hontenWan)}</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:4px">月平均 ${fmtWan(Math.round(hontenWan / (monthsEntered || 1)))} / 月</div>
+      </div>
+      <div class="cumul-item">
+        <div class="cumul-item-label">CREATE PLUS</div>
+        <div class="cumul-item-val" style="font-size:22px;color:var(--orange)">${fmtWan(plusWan)}</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:4px">月平均 ${fmtWan(Math.round(plusWan / (monthsEntered || 1)))} / 月</div>
+      </div>
+    </div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="font-size:10px;color:var(--dim);letter-spacing:.06em;margin-bottom:6px">月別売上（3月〜12月）</div>
+      <div style="display:flex;gap:4px;align-items:flex-end">${monthBars}</div>
+    </div>
+  `;
+}
+
+// ====================================================================
+// Charts
+// ====================================================================
+
+function renderTrendChart() {
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  if (trendChart) trendChart.destroy();
+  trendChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: TREND_13M.map(d => d.label),
+      datasets: [
+        {
+          label: 'CREATE 本店',
+          data: TREND_13M.map(d => d.honten),
+          backgroundColor: TREND_13M.map((_, i) => i >= 10 ? '#c4974acc' : '#c4974a44'),
+          borderColor: '#c4974a',
+          borderWidth: 1,
+          borderRadius: 2,
+          stack: 'g',
+        },
+        {
+          label: 'CREATE PLUS',
+          data: TREND_13M.map(d => d.plus),
+          backgroundColor: TREND_13M.map((_, i) => i >= 10 ? '#d4845ccc' : '#d4845c44'),
+          borderColor: '#d4845c',
+          borderWidth: 1,
+          borderRadius: 2,
+          stack: 'g',
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#666', font: { size: 11 }, boxWidth: 12 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y ? ctx.parsed.y + '万' : '—'}` } },
+      },
+      scales: {
+        x: { stacked: true, ticks: { color: '#555', font: { size: 10 } }, grid: { color: '#272727' } },
+        y: { stacked: true, ticks: { color: '#555', font: { size: 10 }, callback: v => v + '万' }, grid: { color: '#272727' } },
+      },
+    },
+  });
+}
+
+function renderShareChart(key) {
+  const cur = MONTHLY[key];
+  const ctx = document.getElementById('shareChart').getContext('2d');
+  if (shareChart) shareChart.destroy();
+  const h = Math.round(cur.honten.sales / 10000);
+  const p = Math.round(cur.plus.sales / 10000);
+  const total = h + p;
+  shareChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['CREATE 本店', 'CREATE PLUS'],
+      datasets: [{
+        data: [h, p],
+        backgroundColor: ['#c4974acc', '#d4845ccc'],
+        borderColor: ['#c4974a', '#d4845c'],
+        borderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#666', font: { size: 11 }, boxWidth: 12, padding: 12 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}万 (${Math.round(ctx.parsed / total * 100)}%)` } },
+      },
+    },
+  });
+}
+
+// ====================================================================
+// Store Cards
+// ====================================================================
+
+function renderStoreCards(key, prevKey) {
+  const cur  = MONTHLY[key];
+  const prev = prevKey ? MONTHLY[prevKey] : null;
+
+  const hontenAch = Math.round(cur.honten.sales / cur.honten.target * 100);
+  const plusAch   = Math.round(cur.plus.sales   / cur.plus.target   * 100);
+
+  function makeHontenCard() {
+    const d = cur.honten, p = prev ? prev.honten : null;
+    const ac = achieveColor(hontenAch);
+    return `
+      <div class="store-card">
+        <div class="store-name" style="color:var(--gold)">CREATE 本店</div>
+        <div class="store-stat-row">
+          <div class="store-stat">
+            <div class="store-stat-value" style="color:var(--gold)">${fmt(d.sales)}</div>
+            <div class="store-stat-label">売上</div>
+          </div>
+          <div class="store-stat">
+            <div class="store-stat-value" style="color:var(--gold)">${d.customers}</div>
+            <div class="store-stat-label">総卓数</div>
+          </div>
+          <div class="store-stat">
+            <div class="store-stat-value" style="color:var(--gold)">${d.newCustomers}</div>
+            <div class="store-stat-label">新規</div>
+          </div>
+          <div class="store-stat">
+            <div class="store-stat-value" style="color:var(--gold)">${d.regular}</div>
+            <div class="store-stat-label">正規</div>
+          </div>
+          <div class="store-stat">
+            <div class="store-stat-value" style="color:var(--gold)">${d.repeatFree}</div>
+            <div class="store-stat-label">リピート</div>
+          </div>
+          <div class="store-stat">
+            <div class="store-stat-value" style="color:var(--gold)">${fmt(Math.round(d.sales / d.customers))}</div>
+            <div class="store-stat-label">客単価</div>
+          </div>
+        </div>
+        <div class="achieve-wrap">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:10px;color:var(--dim);letter-spacing:.06em">目標達成率</span>
+            <span style="font-family:'EB Garamond',serif;font-size:16px;color:${ac}">${hontenAch}%</span>
+          </div>
+          <div class="achieve-bar-bg"><div class="achieve-bar-fill" style="width:${Math.min(hontenAch,100)}%;background:${ac}"></div></div>
+          <div style="font-size:11px;color:#666;margin-top:8px">${p ? fmtChange(d.sales, p.sales) : ''}</div>
+        </div>
+      </div>`;
+  }
+
+  function makePlusCard() {
+    const d = cur.plus, p = prev ? prev.plus : null;
+    const ac = achieveColor(plusAch);
+    const repRate = Math.round(d.repeatCustomers / d.customers * 100);
+    return `
+      <div class="store-card">
+        <div class="store-name" style="color:var(--orange)">CREATE PLUS</div>
+        <div class="store-stat-row">
+          <div class="store-stat">
+            <div class="store-stat-value" style="color:var(--orange)">${fmt(d.sales)}</div>
+            <div class="store-stat-label">売上</div>
+          </div>
+          <div class="store-stat">
+            <div class="store-stat-value" style="color:var(--orange)">${d.customers}</div>
+            <div class="store-stat-label">総卓数</div>
+          </div>
+          <div class="store-stat">
+            <div class="store-stat-value" style="color:var(--orange)">${d.newCustomers}</div>
+            <div class="store-stat-label">新規</div>
+          </div>
+          <div class="store-stat">
+            <div class="store-stat-value" style="color:var(--orange)">${d.repeatCustomers}</div>
+            <div class="store-stat-label">リピート</div>
+          </div>
+          <div class="store-stat">
+            <div class="store-stat-value" style="color:var(--orange)">${repRate}%</div>
+            <div class="store-stat-label">リピート率</div>
+          </div>
+          <div class="store-stat">
+            <div class="store-stat-value" style="color:${Number(d.unpaidRate) < 5 ? 'var(--green)' : 'var(--red)'}">${d.unpaidRate}%</div>
+            <div class="store-stat-label">未収率</div>
+          </div>
+        </div>
+        <div class="achieve-wrap">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:10px;color:var(--dim);letter-spacing:.06em">目標達成率</span>
+            <span style="font-family:'EB Garamond',serif;font-size:16px;color:${ac}">${plusAch}%</span>
+          </div>
+          <div class="achieve-bar-bg"><div class="achieve-bar-fill" style="width:${Math.min(plusAch,100)}%;background:${ac}"></div></div>
+          <div style="font-size:11px;color:#666;margin-top:8px">${p ? fmtChange(d.sales, p.sales) : ''}</div>
+        </div>
+      </div>`;
+  }
+
+  document.getElementById('storeCards').innerHTML = makeHontenCard() + makePlusCard();
+}
+
+// ====================================================================
+// Member Table
+// ====================================================================
+
+function getTableMembers(tab, monthIdx) {
+  if (tab === 'group') {
+    // 本店・PLUSを合算してランキング、同名スタッフはstore表示で区別
+    const honten = MEMBERS.honten.map(m => ({...m, store: '本'}));
+    const plus   = MEMBERS.plus.map(m => ({...m, store: '+'}));
+    return [...honten, ...plus].sort((a, b) => b.m[monthIdx] - a.m[monthIdx]);
+  }
+  return MEMBERS[tab].map(m => ({...m, store: null})).sort((a, b) => b.m[monthIdx] - a.m[monthIdx]);
+}
+
+function renderMemberTable(monthIdx) {
+  const members = getTableMembers(currentTab, monthIdx);
+  const accentColor = currentTab === 'honten' ? 'var(--gold)' : currentTab === 'plus' ? 'var(--orange)' : '#7aadcc';
+  const maxVal = Math.max(...members.map(m => m.m[monthIdx]), 1);
+
+  // 卓数カラムを表示するか（データがある行が1つでもあればヘッダー表示）
+  const hasTableData = members.some(m => {
+    const t = m.t[monthIdx];
+    return t && (t.r + t.n + t.p) > 0;
+  });
+
+  const rows = members.map((m, i) => {
+    const cur  = m.m[monthIdx];
+    const prev = monthIdx > 0 ? m.m[monthIdx - 1] : null;
+    const t    = m.t[monthIdx];
+    const totalTables = t ? t.r + t.n + t.p : 0;
+
+    const rankClass = i === 0 ? 'rank-gold' : i === 1 ? 'rank-silver' : i === 2 ? 'rank-bronze' : '';
+    const nameColor = i < 3 ? '' : accentColor;
+
+    let changeHtml = '';
+    if (prev !== null && cur > 0 && prev > 0) {
+      const pct = ((cur - prev) / prev * 100).toFixed(0);
+      const cls  = Number(pct) > 0 ? 'up' : Number(pct) < 0 ? 'down' : 'flat';
+      const sign = Number(pct) > 0 ? '▲' : '▼';
+      changeHtml = `<span class="${cls}">${sign}${Math.abs(pct)}%</span>`;
+    } else if (prev === 0 && cur > 0) {
+      changeHtml = '<span class="up" style="font-size:10px">NEW</span>';
+    }
+
+    const sparkBars = [0,1,2].map(mi => {
+      const v = m.m[mi];
+      const h = maxVal > 0 ? Math.max(Math.round(v / maxVal * 26), v > 0 ? 3 : 0) : 0;
+      const bg = mi === monthIdx ? accentColor : '#2e2e2e';
+      return `<div class="spark-bar" style="height:${h}px;background:${bg}"></div>`;
+    }).join('');
+
+    const badgeHtml = m.store
+      ? `<span class="store-badge">${m.store}</span>`
+      : '';
+
+    const tablesCells = hasTableData
+      ? `<td class="${totalTables > 0 ? '' : 'tbl-no-data'}">${t && t.r > 0 ? t.r : '—'}</td>
+         <td class="${totalTables > 0 ? '' : 'tbl-no-data'}">${t && t.n > 0 ? t.n : '—'}</td>
+         <td class="${totalTables > 0 ? '' : 'tbl-no-data'}">${t && t.p > 0 ? t.p : '—'}</td>`
+      : '';
+
+    return `<tr>
+      <td>${i + 1}</td>
+      <td><span class="${rankClass}" style="color:${nameColor}">${m.name}</span>${badgeHtml}</td>
+      <td class="tbl-dim">${m.m[0] > 0 ? m.m[0] + '万' : '—'}</td>
+      <td class="tbl-dim">${m.m[1] > 0 ? m.m[1] + '万' : '—'}</td>
+      <td style="color:var(--text);font-weight:400">${cur > 0 ? cur + '万' : '—'}</td>
+      <td>${changeHtml}</td>
+      ${tablesCells}
+      <td><div class="spark">${sparkBars}</div></td>
+    </tr>`;
+  }).join('');
+
+  const tableCols = hasTableData
+    ? `<th>正規</th><th>新規</th><th>リピ</th>`
+    : '';
+
+  document.getElementById('memberTable').innerHTML = `
+    <thead>
+      <tr>
+        <th style="text-align:center;width:28px">#</th>
+        <th style="text-align:left">NAME</th>
+        <th class="tbl-dim">3月</th>
+        <th class="tbl-dim">4月</th>
+        <th style="color:var(--text)">5月</th>
+        <th>前月比</th>
+        ${tableCols}
+        <th style="width:48px">推移</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  `;
+}
+
+// ====================================================================
+// Intel Engine — 自動シグナル＆アドバイス生成
+// ====================================================================
+
+function generateIntel(key, prevKey, prev2Key) {
+  const monthIdx = MONTHS.indexOf(key);
+  const cur = MONTHLY[key];
+
+  const signals  = [];
+  const riserSig = [];
+  const actions  = [];
+  const risers   = [];
+  const fallers  = [];
+  const zeros    = [];
+
+  // — 個人別 —
+  ['honten', 'plus'].forEach(store => {
+    const label = store === 'honten' ? '本店' : 'PLUS';
+    MEMBERS[store].forEach(m => {
+      const val  = m.m[monthIdx];
+      const pval = monthIdx > 0 ? m.m[monthIdx - 1] : null;
+      const pp   = monthIdx > 1 ? m.m[monthIdx - 2] : null;
+
+      // 3ヶ月連続0万
+      if (monthIdx >= 2 && val === 0 && pval === 0 && pp === 0) {
+        signals.push({ type: 'critical', text: `${m.name}（${label}）`, detail: '3ヶ月連続売上0万 — 在籍継続の判断が必要' });
+        zeros.push(`${m.name}（${label}）`);
+      }
+      // 急落 -30%以上（前月30万以上の場合のみ）
+      else if (pval !== null && pval >= 30 && val < pval * 0.7) {
+        const pct = Math.round((val - pval) / pval * 100);
+        signals.push({ type: 'warning', text: `${m.name}（${label}）急落 ${pct}%`, detail: `${pval}万 → ${val}万 — 原因確認が必要` });
+        fallers.push(`${m.name}（${label}）`);
+      }
+
+      // 急成長 +50%以上（別途トップ3に絞る）
+      if (pval !== null && pval > 0 && val >= pval * 1.5 && val >= 50) {
+        const pct = Math.round((val - pval) / pval * 100);
+        riserSig.push({ type: 'positive', text: `${m.name}（${label}）急成長 +${pct}%`, detail: `${pval}万 → ${val}万`, pct });
+        risers.push(m.name);
+      }
+    });
+  });
+
+  // 急成長はトップ3のみ表示
+  riserSig.sort((a, b) => b.pct - a.pct);
+  riserSig.slice(0, 3).forEach(s => signals.push(s));
+
+  // — 店舗別 —
+  const hAch = Math.round(cur.honten.sales / cur.honten.target * 100);
+  const pAch = Math.round(cur.plus.sales   / cur.plus.target   * 100);
+
+  if (hAch >= 100) signals.push({ type: 'positive', text: `本店 目標達成 ${hAch}%`,   detail: fmt(cur.honten.target) + ' 突破' });
+  else if (hAch < 80) signals.push({ type: 'warning', text: `本店 達成率 ${hAch}%`,   detail: `目標まで ${100 - hAch}pt 未達` });
+
+  if (pAch >= 100) signals.push({ type: 'positive', text: `PLUS 目標達成 ${pAch}%`,  detail: fmt(cur.plus.target) + ' 突破' });
+  else if (pAch < 80) signals.push({ type: 'warning', text: `PLUS 達成率 ${pAch}%`,  detail: `目標まで ${100 - pAch}pt 未達` });
+
+  if (cur.plus.unpaidRate < 3.5)
+    signals.push({ type: 'positive', text: `PLUS 未収率 ${cur.plus.unpaidRate}%`, detail: '低水準維持 — 指名固定化が進んでいる' });
+  else if (cur.plus.unpaidRate > 6)
+    signals.push({ type: 'warning',  text: `PLUS 未収率 ${cur.plus.unpaidRate}%`, detail: '高水準 — 回収強化が必要' });
+
+  const repRate = Math.round(cur.plus.repeatCustomers / cur.plus.customers * 100);
+  if (repRate >= 40)
+    signals.push({ type: 'positive', text: `PLUS リピート率 ${repRate}%`, detail: '固定客が増加中 — VIP育成フェーズへ' });
+
+  // — チーム連続下落 —
+  if (TEAMS_DATA[key] && prevKey && prev2Key && TEAMS_DATA[prevKey] && TEAMS_DATA[prev2Key]) {
+    TEAMS_DATA[key].honten.forEach(team => {
+      const p  = TEAMS_DATA[prevKey].honten.find(t => t.name === team.name);
+      const p2 = TEAMS_DATA[prev2Key].honten.find(t => t.name === team.name);
+      if (p && p2 && team.achieve < p.achieve && p.achieve < p2.achieve)
+        signals.push({ type: 'critical', text: `${team.name} 達成率 ${team.achieve}%`, detail: `3ヶ月連続下落（${p2.achieve}%→${p.achieve}%→${team.achieve}%）` });
+    });
+  }
+
+  // — アドバイス自動生成 —
+  // 急成長者は成長率順（riserSigはすでにソート済み）
+  const topRiserNames = riserSig.slice(0, 3).map(s => s.text.split('（')[0]);
+  if (topRiserNames.length)
+    actions.push({ who: 'こうき', text: `${topRiserNames.join('・')} を今週中に個別面談 — 成功要因を言語化させ横展開のネタにする` });
+
+  if (fallers.length)
+    actions.push({ who: 'こうき', text: `${fallers.join('・')} の急落原因を今月中に把握 — プライベートか指名離れかで対処が変わる` });
+
+  if (zeros.length)
+    actions.push({ who: 'こうき', text: `${zeros.join('・')} — 在籍意思の確認とリソース配分の見直しを` });
+
+  if (TEAMS_DATA[key] && prevKey && prev2Key && TEAMS_DATA[prevKey] && TEAMS_DATA[prev2Key]) {
+    const decl = TEAMS_DATA[key].honten.filter(team => {
+      const p  = TEAMS_DATA[prevKey].honten.find(t => t.name === team.name);
+      const p2 = TEAMS_DATA[prev2Key].honten.find(t => t.name === team.name);
+      return p && p2 && team.achieve < p.achieve && p.achieve < p2.achieve;
+    });
+    if (decl.length)
+      actions.push({ who: 'こうき', text: `${decl.map(t => t.name).join('・')}のリーダーと面談 — 3ヶ月連続下落の原因を特定し、次月施策を設計する` });
+  }
+
+  if (repRate >= 40)
+    actions.push({ who: 'キイチ', text: `PLUSのリピート率${repRate}%・未収率${cur.plus.unpaidRate}%は固定客育成フェーズのシグナル — 新規SNS集客より既存VIPの深耕（LINE・アフターフォロー）に投資重心を移す提言をエソラへ` });
+
+  const groupTotal = Math.round((cur.honten.sales + cur.plus.sales) / 10000);
+  const annualPace = groupTotal * 12;
+  const gap = Math.round((100000 - annualPace) / 10000 * 10) / 10;
+  if (gap > 0)
+    actions.push({ who: 'キイチ', text: `今月ペース月${groupTotal}万 → 年換算${(annualPace / 10000).toFixed(1)}億。10億目標まで年間約${gap}億のギャップ — 早期覚醒型新人（Revelo・ショコラ型）の採用強化が最短ルート` });
+
+  return { signals, actions };
+}
+
+function renderIntel(key, prevKey, prev2Key) {
+  const { signals, actions } = generateIntel(key, prevKey, prev2Key);
+  const el = document.getElementById('intelSection');
+  if (!signals.length && !actions.length) { el.innerHTML = ''; return; }
+
+  const iconMap = { critical: '⚑', warning: '▲', positive: '◆' };
+  const clrMap  = { critical: 'var(--red)', warning: '#d4a74a', positive: 'var(--green)' };
+  const bgMap   = { critical: '#2a1a1a',    warning: '#231e10',  positive: '#132013' };
+  const brdMap  = { critical: '#5a2020',    warning: '#5a4010',  positive: '#204020' };
+
+  const sHtml = signals.length ? signals.map(s => `
+    <div style="display:flex;gap:10px;align-items:flex-start;padding:9px 12px;background:${bgMap[s.type]};border:1px solid ${brdMap[s.type]};border-radius:4px;margin-bottom:6px">
+      <span style="color:${clrMap[s.type]};font-size:11px;flex-shrink:0;margin-top:1px">${iconMap[s.type]}</span>
+      <div>
+        <div style="font-size:12px;color:${clrMap[s.type]}">${s.text}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${s.detail}</div>
+      </div>
+    </div>`).join('') : '<div style="font-size:11px;color:#444;padding:4px 0">検出なし</div>';
+
+  const aHtml = actions.length ? actions.map(a => {
+    const isK = a.who === 'キイチ';
+    const tc  = isK ? 'var(--gold)' : 'var(--orange)';
+    const tb  = isK ? '#2a2010' : '#2a1800';
+    return `
+      <div style="padding:10px 12px;background:#1e1e1e;border:1px solid #2e2e2e;border-left:2px solid ${tc};border-radius:4px;margin-bottom:6px">
+        <div style="display:inline-block;font-size:9px;color:${tc};background:${tb};border:1px solid ${tc}44;border-radius:3px;padding:1px 6px;letter-spacing:.08em;margin-bottom:5px">${a.who}</div>
+        <div style="font-size:12px;color:#ccc;line-height:1.65">${a.text}</div>
+      </div>`;
+  }).join('') : '<div style="font-size:11px;color:#444;padding:4px 0">なし</div>';
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="intel-grid">
+        <div>
+          <div style="font-size:10px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">SIGNALS</div>
+          ${sHtml}
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">ACTION ITEMS</div>
+          ${aHtml}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ====================================================================
+// Teams Section
+// ====================================================================
+
+function renderTeams(key) {
+  const el = document.getElementById('teamsSection');
+  if (!TEAMS_DATA[key]) { el.innerHTML = ''; return; }
+
+  const months = MONTHS.slice(0, MONTHS.indexOf(key) + 1);
+  const names  = TEAMS_DATA[key].honten.map(t => t.name);
+
+  const rows = names.map(name => {
+    const cells = months.map(m => {
+      const td = TEAMS_DATA[m] ? TEAMS_DATA[m].honten.find(t => t.name === name) : null;
+      if (!td) return '<td class="tbl-dim">—</td><td class="tbl-dim">—</td>';
+      const ac  = achieveColor(td.achieve);
+      const mi  = MONTHS.indexOf(m);
+      const pm  = mi > 0 ? MONTHS[mi - 1] : null;
+      const pt  = pm && TEAMS_DATA[pm] ? TEAMS_DATA[pm].honten.find(t => t.name === name) : null;
+      const arr = pt ? (td.achieve > pt.achieve ? '<span class="up" style="font-size:9px">▲</span>' : td.achieve < pt.achieve ? '<span class="down" style="font-size:9px">▼</span>' : '') : '';
+      return `<td style="text-align:right;color:var(--text)">${td.sales}万</td><td style="text-align:right;color:${ac}">${td.achieve}%${arr}</td>`;
+    }).join('');
+    return `<tr><td style="text-align:left;color:var(--text)">${name}</td>${cells}</tr>`;
+  }).join('');
+
+  const hCols = months.map(m => `<th colspan="2" style="text-align:center">${parseInt(m.split('-')[1])}月</th>`).join('');
+  const sCols = months.map(() => '<th>売上</th><th>達成率</th>').join('');
+
+  el.innerHTML = `
+    <div class="card section-gap">
+      <div class="card-title">チーム別（CREATE 本店）</div>
+      <table class="dtable">
+        <thead>
+          <tr><th style="text-align:left">チーム</th>${hCols}</tr>
+          <tr><th></th>${sCols}</tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ====================================================================
+// Tab Switch
+// ====================================================================
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tab-honten').className = tab === 'honten' ? 'tab-btn active-honten' : 'tab-btn';
+  document.getElementById('tab-plus').className   = tab === 'plus'   ? 'tab-btn active-plus'   : 'tab-btn';
+  document.getElementById('tab-group').className  = tab === 'group'  ? 'tab-btn active-group'  : 'tab-btn';
+  renderMemberTable(currentIdx);
+}
+
+// ====================================================================
+// Navigation & Render
+// ====================================================================
+
+function render() {
+  const key      = MONTHS[currentIdx];
+  const prevKey  = currentIdx > 0 ? MONTHS[currentIdx - 1] : null;
+  const prev2Key = currentIdx > 1 ? MONTHS[currentIdx - 2] : null;
+  document.getElementById('monthLabel').textContent = formatMonthLabel(key);
+  renderKPI(key, prevKey);
+  renderIntel(key, prevKey, prev2Key);
+  renderCumulative();
+  renderTrendChart();
+  renderShareChart(key);
+  renderStoreCards(key, prevKey);
+  renderTeams(key);
+  renderMemberTable(currentIdx);
+}
+
+function navigate(dir) {
+  const next = currentIdx + dir;
+  if (next >= 0 && next < MONTHS.length) { currentIdx = next; render(); }
+}
+
+Chart.defaults.color = '#666';
+render();
+</script>
+</body>
+</html>
