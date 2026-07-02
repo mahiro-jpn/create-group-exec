@@ -352,22 +352,22 @@ const CREATE_INDIV = [
   {n:'Rui',       m3:106, m4:78,  m5:71,  m6:277},
   {n:'椿',        m3:4,   m4:30,  m5:79,  m6:80},
   {n:'まきばおう', m3:63,  m4:81,  m5:56,  m6:134, tag3:'新入'},
-  {n:'コタロー',  m3:36,  m4:41,  m5:36,  m6:46},
+  {n:'コタロー',  m3:36,  m4:41,  m5:36,  m6:46,  mgmt:true},
   {n:'SORA',      m3:33,  m4:60,  m5:74,  m6:91},
   {n:'ウタ',      m3:0,   m4:6,   m5:18,  m6:6},
   {n:'虎丸',      m3:27,  m4:2,   m5:0,   m6:9},
   {n:'GON',       m3:2,   m4:6,   m5:3,   m6:18},
   {n:'十座',      m3:2,   m4:1,   m5:3,   m6:42,  tag3:'新入'},
   {n:'染流華',    m3:0,   m4:0,   m5:17,  m6:18},
-  {n:'愁時',      m3:0,   m4:0,   m5:8,   m6:9},
+  {n:'愁時',      m3:0,   m4:0,   m5:8,   m6:9,   mgmt:true},
   {n:'YOSHI',     m3:0,   m4:0,   m5:0,   m6:0,   tag6:'新入'},
-  {n:'春治',      m3:0,   m4:0,   m5:0,   m6:0},
+  {n:'春治',      m3:0,   m4:0,   m5:0,   m6:0,   mgmt:true},
   {n:'九喇嘛',    m3:0,   m4:0,   m5:1,   m6:0},
   {n:'SOMARUKA',  m3:3,   m4:13,  m5:18,  m6:0},
-  {n:'KAZU',      m3:5,   m4:2,   m5:5,   m6:0},
+  {n:'KAZU',      m3:5,   m4:2,   m5:5,   m6:0,   mgmt:true},
   {n:'クラマ',    m3:0,   m4:0,   m5:2,   m6:0},
   {n:'蘭',        m3:0,   m4:0,   m5:0,   m6:0},
-  {n:'ライム',    m3:0,   m4:0,   m5:0,   m6:0},
+  {n:'ライム',    m3:0,   m4:0,   m5:0,   m6:0,   mgmt:true},
 ];
 
 const PLUS_INDIV = [
@@ -390,8 +390,9 @@ const PLUS_INDIV = [
   {n:'ウル',     m3:3,   m4:6,   m5:3,   m6:1,   tag6:'退店'},
   {n:'アキ',     m3:1,   m4:0,   m5:0,   m6:0},
   {n:'瑠碧',     m3:0,   m4:0,   m5:3,   m6:0},
-  {n:'愛',       m3:0,   m4:0,   m5:0,   m6:0},
-  {n:'ラル',     m3:0,   m4:0,   m5:0,   m6:0},
+  {n:'愛',       m3:0,   m4:0,   m5:0,   m6:0,   mgmt:true},
+  {n:'ラル',     m3:0,   m4:0,   m5:0,   m6:0,   mgmt:true},
+  {n:'マナ',     m3:null,m4:null,m5:null,m6:null, mgmt:true, mgmtSales:true},
   {n:'龍雅',     m3:0,   m4:0,   m5:0,   m6:0},
   {n:'つくし',   m3:null,m4:null,m5:0,   m6:1,   tag6:'退店'},
 ];
@@ -511,7 +512,7 @@ function generateIntel(key, prevKey) {
       const v=gv(m,monthIdx);
       const pv=monthIdx>0?gv(m,monthIdx-1):null;
       const pp=monthIdx>1?gv(m,monthIdx-2):null;
-      if(monthIdx>=2&&v===0&&pv===0&&pp===0){
+      if(!m.mgmt&&monthIdx>=2&&v===0&&pv===0&&pp===0){
         signals.push({type:'critical',text:`${m.n}（${label}）`,detail:'3ヶ月連続売上0万 — 在籍継続の判断が必要'});
         if(store==='create') createZeros.push(m.n); else plusZeros.push(m.n);
       } else if(pv!==null&&pv>=30&&v<pv*0.7){
@@ -814,8 +815,9 @@ function renderCreate(key, prevKey) {
     </tr></thead>
     <tbody>${sorted.map(d=>{
       const tagHtml=recentMonths.map(m=>{const t=d['tag'+mKey(m)];return t?`<span class="badge badge-new">${t}</span>`:''}).join('');
+      const mgmtBadge=d.mgmt?`<span class="badge badge-move">運営</span>`:'';
       return`<tr>
-        <td>${d.n}${tagHtml}</td>
+        <td>${d.n}${mgmtBadge}${tagHtml}</td>
         ${recentMonths.map(m=>{const mk2=mKey(m);return`<td style="color:${m===key?'#e0e0e0':'#555'}">${d[mk2]??'—'}</td>`;}).join('')}
       </tr>`;}).join('')}</tbody>`;
 }
@@ -894,7 +896,7 @@ function renderPlus(key, prevKey) {
     </tr></thead>
     <tbody>${sorted.map(d=>`
       <tr>
-        <td>${d.n}${tagHtml(d)}</td>
+        <td>${d.n}${d.mgmt?'<span class="badge badge-move">運営</span>':''}${tagHtml(d)}</td>
         ${recentMonthsP.map(m=>{const mk2=mKey(m);return`<td style="color:${m===key?'#e0e0e0':'#555'}">${d[mk2]!=null?d[mk2]:'—'}</td>`;}).join('')}
       </tr>`).join('')}</tbody>`;
 }
