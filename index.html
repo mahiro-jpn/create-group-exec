@@ -359,7 +359,7 @@ const CREATE_INDIV = [
   {n:'GON',       m3:2,   m4:6,   m5:3,   m6:18},
   {n:'十座',      m3:2,   m4:1,   m5:3,   m6:42,  tag3:'新入'},
   {n:'染流華',    m3:0,   m4:0,   m5:17,  m6:18},
-  {n:'怒時',      m3:0,   m4:0,   m5:8,   m6:9},
+  {n:'愁時',      m3:0,   m4:0,   m5:8,   m6:9},
   {n:'YOSHI',     m3:0,   m4:0,   m5:0,   m6:0,   tag6:'新入'},
   {n:'春治',      m3:0,   m4:0,   m5:0,   m6:0},
   {n:'九喇嘛',    m3:0,   m4:0,   m5:1,   m6:0},
@@ -499,32 +499,38 @@ function switchTab(tab, el) {
 function generateIntel(key, prevKey) {
   const monthIdx=MONTHS.indexOf(key);
   const cur=MONTHLY[key];
-  const signals=[],riserSig=[],actions=[],fallers=[],zeros=[];
+  const signals=[],riserSig=[],actions=[];
+  const createRisers=[],plusRisers=[];
+  const createFallers=[],plusFallers=[];
+  const createZeros=[],plusZeros=[];
 
   function gv(m,idx){ return (m[mKey(MONTHS[idx])]??0); }
 
-  [{arr:CREATE_INDIV,label:'本店'},{arr:PLUS_INDIV,label:'PLUS'}].forEach(({arr,label})=>{
+  [{arr:CREATE_INDIV,label:'本店',store:'create'},{arr:PLUS_INDIV,label:'PLUS',store:'plus'}].forEach(({arr,label,store})=>{
     arr.forEach(m=>{
       const v=gv(m,monthIdx);
       const pv=monthIdx>0?gv(m,monthIdx-1):null;
       const pp=monthIdx>1?gv(m,monthIdx-2):null;
       if(monthIdx>=2&&v===0&&pv===0&&pp===0){
         signals.push({type:'critical',text:`${m.n}（${label}）`,detail:'3ヶ月連続売上0万 — 在籍継続の判断が必要'});
-        zeros.push(`${m.n}（${label}）`);
+        if(store==='create') createZeros.push(m.n); else plusZeros.push(m.n);
       } else if(pv!==null&&pv>=30&&v<pv*0.7){
         const p=Math.round((v-pv)/pv*100);
         signals.push({type:'warning',text:`${m.n}（${label}）急落 ${p}%`,detail:`${pv}万 → ${v}万 — 原因確認が必要`});
-        fallers.push(`${m.n}（${label}）`);
+        if(store==='create') createFallers.push(m.n); else plusFallers.push(m.n);
       }
       if(pv!==null&&pv>0&&v>=pv*1.5&&v>=50){
         const p=Math.round((v-pv)/pv*100);
-        riserSig.push({type:'positive',text:`${m.n}（${label}）急成長 +${p}%`,detail:`${pv}万 → ${v}万`,pct:p});
+        riserSig.push({type:'positive',text:`${m.n}（${label}）急成長 +${p}%`,detail:`${pv}万 → ${v}万`,pct:p,store,n:m.n});
       }
     });
   });
 
   riserSig.sort((a,b)=>b.pct-a.pct);
-  riserSig.slice(0,3).forEach(s=>signals.push(s));
+  riserSig.slice(0,3).forEach(s=>{
+    signals.push(s);
+    if(s.store==='create') createRisers.push(s.n); else plusRisers.push(s.n);
+  });
 
   const hA=cur.CREATE.achRate, pA=cur.PLUS.achRate;
   if(hA>=100) signals.push({type:'positive',text:`本店 目標達成 ${hA}%`,detail:fmt(cur.CREATE.target)+' 突破'});
@@ -547,10 +553,12 @@ function generateIntel(key, prevKey) {
     });
   }
 
-  const topRisers=riserSig.slice(0,3).map(s=>s.text.split('（')[0]);
-  if(topRisers.length) actions.push({who:'こうき',text:`${topRisers.join('・')} を今週中に個別面談 — 成功要因を言語化させ横展開のネタにする`});
-  if(fallers.length)   actions.push({who:'こうき',text:`${fallers.join('・')} の急落原因を今月中に把握 — プライベートか指名離れかで対処が変わる`});
-  if(zeros.length)     actions.push({who:'こうき',text:`${zeros.join('・')} — 在籍意思の確認とリソース配分の見直しを`});
+  if(createRisers.length) actions.push({who:'こうき',  text:`${createRisers.join('・')} を今週中に個別面談 — 成功要因を言語化させ横展開のネタにする`});
+  if(plusRisers.length)   actions.push({who:'ショコラ',text:`${plusRisers.join('・')} を今週中に個別面談 — 成功要因を言語化させ横展開のネタにする`});
+  if(createFallers.length) actions.push({who:'こうき', text:`${createFallers.join('・')} の急落原因を今月中に把握 — プライベートか指名離れかで対処が変わる`});
+  if(plusFallers.length)   actions.push({who:'ショコラ',text:`${plusFallers.join('・')} の急落原因を今月中に把握 — プライベートか指名離れかで対処が変わる`});
+  if(createZeros.length)   actions.push({who:'こうき', text:`${createZeros.join('・')} — 在籍意思の確認とリソース配分の見直しを`});
+  if(plusZeros.length)     actions.push({who:'ショコラ',text:`${plusZeros.join('・')} — 在籍意思の確認とリソース配分の見直しを`});
 
   if(cur.PLUS.repeatRate>=40)
     actions.push({who:'キイチ',text:`PLUSのリピート率${cur.PLUS.repeatRate}%・未収率${cur.PLUS.uncRate}%は固定客育成フェーズのシグナル — 新規SNS集客より既存VIPの深耕（LINE・アフターフォロー）に投資重心を移す提言をエソラへ`});
@@ -581,9 +589,9 @@ function renderIntel(key,prevKey){
     </div>`).join(''):'<div style="font-size:11px;color:#444;padding:4px 0">検出なし</div>';
 
   const aHtml=actions.length?actions.map(a=>{
-    const isK=a.who==='キイチ';
-    const tc=isK?'#c4974a':'#d4845c';
-    const tb=isK?'#2a2010':'#2a1800';
+    const isK=a.who==='キイチ', isSho=a.who==='ショコラ';
+    const tc=isK?'#c4974a':isSho?'#7aadaa':'#d4845c';
+    const tb=isK?'#2a2010':isSho?'#0a1a18':'#2a1800';
     return `<div style="padding:10px 12px;background:#1e1e1e;border:1px solid #2e2e2e;border-left:2px solid ${tc};border-radius:4px;margin-bottom:6px">
       <div style="display:inline-block;font-size:9px;color:${tc};background:${tb};border:1px solid ${tc}44;border-radius:3px;padding:1px 6px;letter-spacing:.08em;margin-bottom:5px">${a.who}</div>
       <div style="font-size:12px;color:#e8e8e8;line-height:1.65">${a.text}</div>
