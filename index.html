@@ -168,6 +168,7 @@ body{
   <div class="tab-btn" onclick="switchTab('create',this)">CREATE</div>
   <div class="tab-btn" onclick="switchTab('plus',this)">PLUS</div>
   <div class="tab-btn" onclick="switchTab('roadmap',this)">ROADMAP</div>
+  <div class="tab-btn" onclick="switchTab('report',this)">REPORT</div>
 </div>
 
 <!-- ========== GROUP ========== -->
@@ -228,6 +229,12 @@ body{
     <div class="card-title">個人別売上（万円）— 当月降順</div>
     <table class="dtable" id="pIndivTable"></table>
   </div>
+</div>
+
+<!-- ========== REPORT ========== -->
+<div id="tab-report" class="tab-content">
+  <div id="reportEventCard"></div>
+  <div class="g2h" id="reportStoreCards"></div>
 </div>
 
 <!-- ========== ROADMAP ========== -->
@@ -390,6 +397,55 @@ const PLUS_INDIV = [
 ];
 
 // ============================================================
+// MONTHLY QUALITATIVE REPORTS
+// ============================================================
+const MONTHLY_REPORTS = {
+  '2026-06': {
+    create: {
+      manager: 'コウキ',
+      theme: '卓数と人事の強化',
+      good: ['若い子達の売上上昇', '幹部候補が出始めた', 'レギュラー入店2名'],
+      issues: ['土台作り・営業前後の空気感改善', '一歩への結果作り'],
+      events: [
+        {name:'全体卓数勝負', result:'当たる施策と判明'},
+        {name:'チーム別卓数・売上勝負', result:'継続実施'},
+        {name:'まきばBD', result:''},
+        {name:'ゴンBD', result:''},
+      ],
+      spotlight: [{n:'ルイ', note:'幹部候補・急成長（5月71万→6月277万 +290%）'}],
+      concerns: ['幹部意識の低さ（全体）'],
+      nextEvents: ['全体卓数勝負継続', 'ルイBD'],
+      staffIn:2, staffOut:0, promoted:[],
+    },
+    plus: {
+      manager: 'ショコラ',
+      theme: '人間指導・キャスト増員',
+      good: ['リーダー陣のベクトル統一', '体を動かし続けた'],
+      issues: ['タスク管理', '指示の出し方'],
+      events: [
+        {name:'新規卓数・売上勝負（3ヶ月目）', result:'マンネリ気味 → 次手が必要'},
+        {name:'りとBD', result:'チームで祝う文化が定着'},
+      ],
+      spotlight: [
+        {n:'りと', note:'売上465万・チームの誕生日文化牽引'},
+        {n:'れん', note:'急成長中（要観察：態度の傲慢化）'},
+      ],
+      concerns: ['れん — 数字上昇に伴う態度・接客の傲慢化', 'りと — 幹部としての自覚なし'],
+      nextEvents: ['リーダー日次面談', '個人課題制導入'],
+      staffIn:0, staffOut:0, promoted:['ひより → リーダー'],
+    }
+  }
+};
+
+// EVENT CALENDAR (BDs, campaigns — month-level granularity)
+const EVENTS = [
+  {month:'2026-06', store:'plus',   type:'BD',       name:'りと'},
+  {month:'2026-06', store:'create', type:'BD',       name:'まきばおう'},
+  {month:'2026-06', store:'create', type:'BD',       name:'GON'},
+  {month:'2026-07', store:'create', type:'BD',       name:'ルイ'},
+];
+
+// ============================================================
 // STATE & CHARTS
 // ============================================================
 const MONTHS = Object.keys(MONTHLY).sort();
@@ -433,7 +489,7 @@ function switchTab(tab, el) {
   document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('tab-'+tab).classList.add('active');
-  document.getElementById('monthNav').style.display = tab==='roadmap'?'none':'flex';
+  document.getElementById('monthNav').style.display = (tab==='roadmap')?'none':'flex';
   renderAll();
 }
 
@@ -560,6 +616,7 @@ function renderAll() {
   if(activeTab==='group')  renderGroup(key,prev);
   if(activeTab==='create') renderCreate(key,prev);
   if(activeTab==='plus')   renderPlus(key,prev);
+  if(activeTab==='report') renderReport(key);
 }
 
 // ============================================================
@@ -832,6 +889,97 @@ function renderPlus(key, prevKey) {
         <td>${d.n}${tagHtml(d)}</td>
         ${recentMonthsP.map(m=>{const mk2=mKey(m);return`<td style="color:${m===key?'#e0e0e0':'#555'}">${d[mk2]!=null?d[mk2]:'—'}</td>`;}).join('')}
       </tr>`).join('')}</tbody>`;
+}
+
+// ============================================================
+// REPORT
+// ============================================================
+function renderReport(key) {
+  const r = MONTHLY_REPORTS[key];
+  const nextKey = curIdx < MONTHS.length-1 ? MONTHS[curIdx+1] : null;
+
+  // Event calendar (current + next month)
+  const evts = EVENTS.filter(e => e.month===key || e.month===nextKey);
+  const evtHtml = evts.length ? evts.map(e => {
+    const sc = e.store==='create'?'#c4974a':'#7aadaa';
+    const isCurrent = e.month===key;
+    return `<div style="padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid #282828;border-left:2px solid ${sc};border-radius:4px">
+      <div style="font-size:9px;color:${sc};letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">${e.store.toUpperCase()} — ${parseInt(e.month.split('-')[1])}月${isCurrent?'':' <span style="color:#555">（翌月）</span>'}</div>
+      <div style="font-size:13px;color:#ccc">${e.type==='BD'?'🎂 ':'◆ '}${e.name}</div>
+      <div style="font-size:9px;color:#555;margin-top:2px">${e.type}</div>
+    </div>`;
+  }).join('') : '<div style="font-size:11px;color:#444">イベントデータなし</div>';
+
+  document.getElementById('reportEventCard').innerHTML = `
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title">イベント・BD カレンダー（当月＋翌月）</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px">${evtHtml}</div>
+    </div>`;
+
+  if (!r) {
+    document.getElementById('reportStoreCards').innerHTML = '<div class="card" style="text-align:center;color:#444;padding:40px;grid-column:span 2">この月のレポートデータはありません</div>';
+    return;
+  }
+
+  function storeCard(d, label, color) {
+    if (!d) return '<div class="card" style="text-align:center;color:#444;padding:30px">データなし</div>';
+    const row = (items,c='#bbb') => (items||[]).map(i=>`<div style="padding:5px 0;border-bottom:1px solid #1e1e1e;font-size:12px;color:${c};line-height:1.5">${i}</div>`).join('');
+    const evtRows = (d.events||[]).map(e=>`
+      <div style="padding:6px 0;border-bottom:1px solid #1e1e1e;">
+        <span style="font-size:12px;color:#ccc">${e.name}</span>
+        ${e.result?`<span style="font-size:10px;color:#666;margin-left:8px">${e.result}</span>`:''}
+      </div>`).join('');
+    const spotRows = (d.spotlight||[]).map(s=>`
+      <div style="padding:6px 10px;background:rgba(196,151,74,0.07);border:1px solid rgba(196,151,74,0.15);border-radius:4px;margin-bottom:5px">
+        <span style="color:#c4974a;font-size:13px">${s.n}</span>
+        <span style="font-size:11px;color:#888;margin-left:8px">${s.note}</span>
+      </div>`).join('');
+    const badges = [];
+    if (d.staffIn)  badges.push(`<span style="background:rgba(109,184,109,0.1);color:#6db86d;border:1px solid rgba(109,184,109,0.25);border-radius:3px;padding:2px 8px;font-size:10px">入店 ${d.staffIn}名</span>`);
+    if (d.staffOut) badges.push(`<span style="background:rgba(199,107,107,0.1);color:#c76b6b;border:1px solid rgba(199,107,107,0.25);border-radius:3px;padding:2px 8px;font-size:10px">退店 ${d.staffOut}名</span>`);
+    const promoHtml = (d.promoted||[]).map(p=>`<span style="background:rgba(122,173,170,0.1);color:#7aadaa;border:1px solid rgba(122,173,170,0.25);border-radius:3px;padding:2px 7px;font-size:10px;display:inline-block;margin:2px">${p}</span>`).join('');
+
+    return `<div class="card">
+      <div class="card-title" style="color:${color}">${label}</div>
+      <div style="font-size:9px;color:#555;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px">重点テーマ：<span style="color:#888">${d.theme||'—'}</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div>
+          <div style="font-size:9px;color:#6db86d;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">▼ 良かった点</div>
+          ${row(d.good)||'<div style="font-size:11px;color:#444">—</div>'}
+        </div>
+        <div>
+          <div style="font-size:9px;color:#c76b6b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">▼ 課題</div>
+          ${row(d.issues,'#bbb')||'<div style="font-size:11px;color:#444">—</div>'}
+        </div>
+      </div>
+      <div style="margin-bottom:14px">
+        <div style="font-size:9px;color:${color};letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">▼ 施策・イベント</div>
+        ${evtRows||'<div style="font-size:11px;color:#444">—</div>'}
+      </div>
+      ${spotRows?`<div style="margin-bottom:14px">
+        <div style="font-size:9px;color:#c4974a;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">▼ 注目スタッフ</div>
+        ${spotRows}
+      </div>`:''}
+      ${(d.concerns||[]).length?`<div style="margin-bottom:14px">
+        <div style="font-size:9px;color:#c76b6b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">▼ 懸念事項</div>
+        ${row(d.concerns.map(c=>'⚑ '+c),'#c76b6b')}
+      </div>`:''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px">
+        <div>
+          <div style="font-size:9px;color:#555;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">▼ 来月の施策</div>
+          ${(d.nextEvents||[]).map(n=>`<div style="font-size:12px;color:#777;padding:3px 0">→ ${n}</div>`).join('')||'<div style="font-size:11px;color:#444">—</div>'}
+        </div>
+        <div>
+          <div style="font-size:9px;color:#555;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">▼ スタッフ動向</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">${badges.join('')||'<span style="font-size:11px;color:#444">変動なし</span>'}</div>
+          ${promoHtml?`<div style="margin-top:4px">${promoHtml}</div>`:''}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('reportStoreCards').innerHTML =
+    storeCard(r.create,'CREATE','#c4974a') + storeCard(r.plus,'CREATE PLUS','#7aadaa');
 }
 
 // ============================================================
