@@ -140,7 +140,7 @@ body{
 .tgt-table tr.tot td{color:#e0e0e0;border-top:1px solid #2a2a2a;font-weight:400;}
 
 @media(max-width:768px){
-  .kpi-r5,.kpi-r6{grid-template-columns:repeat(2,1fr);}
+  .kpi-r4,.kpi-r5,.kpi-r6{grid-template-columns:repeat(2,1fr);}
   .g2,.g3,.g2h{grid-template-columns:1fr;}
   .tab-content{padding:16px;}
   .site-header{padding:12px 16px;}
@@ -360,7 +360,7 @@ const CREATE_INDIV = [
   {n:'十座',      m3:2,   m4:1,   m5:3,   m6:42,  tag3:'新入'},
   {n:'染流華',    m3:0,   m4:0,   m5:17,  m6:18},
   {n:'愁時',      m3:0,   m4:0,   m5:8,   m6:9,   mgmt:true},
-  {n:'YOSHI',     m3:0,   m4:0,   m5:0,   m6:0,   tag6:'新入'},
+  {n:'YOSHI',     m3:null,m4:null,m5:null,m6:0,   tag6:'新入'},
   {n:'春治',      m3:0,   m4:0,   m5:0,   m6:0,   mgmt:true},
   {n:'九喇嘛',    m3:0,   m4:0,   m5:1,   m6:0},
   {n:'SOMARUKA',  m3:3,   m4:13,  m5:18,  m6:0},
@@ -452,7 +452,7 @@ const EVENTS = [
 const MONTHS = Object.keys(MONTHLY).sort();
 let curIdx = MONTHS.length - 1;
 let activeTab = 'group';
-let gTrend, gShare, cTrend, cTeam, pTrend;
+let gTrend, gShare, cTrend, pTrend;
 
 // ============================================================
 // UTILS
@@ -463,11 +463,12 @@ function fmt(n) {
   if(n>=10000) return Math.round(n/10000)+'万';
   return n.toLocaleString();
 }
-function fmtMoM(cur, prev) {
+function fmtMoM(cur, prev, invert=false) {
   if(!prev||prev===0) return '';
   const p=((cur-prev)/prev*100).toFixed(1);
-  const cls=p>0?'up':p<0?'down':'flat';
-  return `<span class="${cls}">${p>0?'▲':'▼'}${Math.abs(p)}% MoM</span>`;
+  const isUp=p>0;
+  const cls=p==0?'flat':(isUp!==invert)?'up':'down';
+  return `<span class="${cls}">${isUp?'▲':'▼'}${Math.abs(p)}% MoM</span>`;
 }
 function achClass(r){ return r>=100?'ach-over':r<75?'ach-low':'ach-mid'; }
 function fmtMonth(key){ const[y,m]=key.split('-'); return `${y}年${parseInt(m)}月`; }
@@ -500,7 +501,7 @@ function switchTab(tab, el) {
 function generateIntel(key, prevKey) {
   const monthIdx=MONTHS.indexOf(key);
   const cur=MONTHLY[key];
-  const signals=[],riserSig=[],actions=[];
+  const signals=[],actions=[];
   const createRisers=[],plusRisers=[];
   const createFallers=[],plusFallers=[];
   const createZeros=[],plusZeros=[];
@@ -512,7 +513,10 @@ function generateIntel(key, prevKey) {
       const v=gv(m,monthIdx);
       const pv=monthIdx>0?gv(m,monthIdx-1):null;
       const pp=monthIdx>1?gv(m,monthIdx-2):null;
-      if(!m.mgmt&&monthIdx>=2&&v===0&&pv===0&&pp===0){
+      if(!m.mgmt&&monthIdx>=2&&v===0&&pv===0&&pp===0
+         &&m[mKey(MONTHS[monthIdx])]!=null
+         &&m[mKey(MONTHS[monthIdx-1])]!=null
+         &&m[mKey(MONTHS[monthIdx-2])]!=null){
         signals.push({type:'critical',text:`${m.n}（${label}）`,detail:'3ヶ月連続売上0万 — 在籍継続の判断が必要'});
         if(isCreate) createZeros.push(m.n); else plusZeros.push(m.n);
       } else if(pv!==null&&pv>=30&&v<pv*0.7){
@@ -815,7 +819,7 @@ function renderCreate(key, prevKey) {
       ${recentMonths.map(m=>`<th style="color:${m===key?'#c4974a':'#555'}">${parseInt(m.split('-')[1])}月</th>`).join('')}
     </tr></thead>
     <tbody>${sorted.map(d=>{
-      const tagHtml=recentMonths.map(m=>{const t=d['tag'+mKey(m)];return t?`<span class="badge badge-new">${t}</span>`:''}).join('');
+      const tagHtml=recentMonths.map(m=>{const tn=parseInt(m.split('-')[1]);const t=d['tag'+tn];if(!t)return '';const cls=t==='退店'?'badge-exit':t==='移籍'?'badge-move':'badge-new';return`<span class="badge ${cls}">${t}</span>`;}).join('');
       const mgmtBadge=d.mgmt?`<span class="badge badge-move">運営</span>`:'';
       return`<tr>
         <td>${d.n}${mgmtBadge}${tagHtml}</td>
@@ -837,7 +841,7 @@ function renderPlus(key, prevKey) {
     {l:'達成率',     v:c.achRate, u:'%',   ch:'', good:c.achRate>=100},
     {l:'客単価',     v:'¥'+c.avgSpend.toLocaleString(), ch:p?fmtMoM(c.avgSpend,p.avgSpend):''},
     {l:'リピート率', v:c.repeatRate, u:'%',ch:p?fmtMoM(c.repeatRate,p.repeatRate):''},
-    {l:'未収率',     v:c.uncRate,    u:'%',ch:p?fmtMoM(c.uncRate,p.uncRate):''},
+    {l:'未収率',     v:c.uncRate,    u:'%',ch:p?fmtMoM(c.uncRate,p.uncRate,true):''},
   ].map(k=>`
     <div class="kpi">
       <div class="kpi-label">${k.l}</div>
@@ -881,12 +885,11 @@ function renderPlus(key, prevKey) {
   const sorted=[...PLUS_INDIV].filter(d=>!isExited(d,curMNumP)).sort((a,b)=>(b[mk]??-1)-(a[mk]??-1));
   function tagHtml(d){
     const tags=[];
-    if(d.tag3) tags.push(`<span class="badge badge-new">${d.tag3}</span>`);
-    if(d.tag4) tags.push(`<span class="badge badge-new">${d.tag4}</span>`);
-    if(d.tag5){
-      const cls=d.tag5==='退店'?'badge-exit':d.tag5==='移籍'?'badge-move':'badge-new';
-      tags.push(`<span class="badge ${cls}">${d.tag5}</span>`);
-    }
+    [d.tag3,d.tag4,d.tag5,d.tag6].forEach(t=>{
+      if(!t) return;
+      const cls=t==='退店'?'badge-exit':t==='移籍'?'badge-move':'badge-new';
+      tags.push(`<span class="badge ${cls}">${t}</span>`);
+    });
     return tags.join('');
   }
   const recentMonthsP=MONTHS.slice(-3);
