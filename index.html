@@ -415,6 +415,10 @@ function fmtMoM(cur, prev) {
 function achClass(r){ return r>=100?'ach-over':r<75?'ach-low':'ach-mid'; }
 function fmtMonth(key){ const[y,m]=key.split('-'); return `${y}年${parseInt(m)}月`; }
 function mKey(key){ return 'm'+parseInt(key.split('-')[1]); }
+function isExited(d, curMNum){
+  for(let n=3;n<curMNum;n++){ if(d['tag'+n]==='退店') return true; }
+  return false;
+}
 
 // ============================================================
 // NAVIGATION
@@ -735,7 +739,8 @@ function renderCreate(key, prevKey) {
   });
 
   // Individual table — sorted by current month, dynamic columns (last 3 months)
-  const sorted=[...CREATE_INDIV].sort((a,b)=>(b[mk]??-1)-(a[mk]??-1));
+  const curMNum=parseInt(key.split('-')[1]);
+  const sorted=[...CREATE_INDIV].filter(d=>!isExited(d,curMNum)).sort((a,b)=>(b[mk]??-1)-(a[mk]??-1));
   const recentMonths=MONTHS.slice(-3);
   document.getElementById('cIndivTable').innerHTML=`
     <thead><tr>
@@ -804,7 +809,8 @@ function renderPlus(key, prevKey) {
   });
 
   // Individual
-  const sorted=[...PLUS_INDIV].sort((a,b)=>(b[mk]??-1)-(a[mk]??-1));
+  const curMNumP=parseInt(key.split('-')[1]);
+  const sorted=[...PLUS_INDIV].filter(d=>!isExited(d,curMNumP)).sort((a,b)=>(b[mk]??-1)-(a[mk]??-1));
   function tagHtml(d){
     const tags=[];
     if(d.tag3) tags.push(`<span class="badge badge-new">${d.tag3}</span>`);
