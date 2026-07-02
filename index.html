@@ -506,31 +506,32 @@ function generateIntel(key, prevKey) {
   const createZeros=[],plusZeros=[];
 
   function gv(m,idx){ return (m[mKey(MONTHS[idx])]??0); }
-
-  [{arr:CREATE_INDIV,label:'本店',store:'create'},{arr:PLUS_INDIV,label:'PLUS',store:'plus'}].forEach(({arr,label,store})=>{
+  function scanStore(arr, label, isCreate) {
+    const localRisers=[];
     arr.forEach(m=>{
       const v=gv(m,monthIdx);
       const pv=monthIdx>0?gv(m,monthIdx-1):null;
       const pp=monthIdx>1?gv(m,monthIdx-2):null;
       if(!m.mgmt&&monthIdx>=2&&v===0&&pv===0&&pp===0){
         signals.push({type:'critical',text:`${m.n}（${label}）`,detail:'3ヶ月連続売上0万 — 在籍継続の判断が必要'});
-        if(store==='create') createZeros.push(m.n); else plusZeros.push(m.n);
+        if(isCreate) createZeros.push(m.n); else plusZeros.push(m.n);
       } else if(pv!==null&&pv>=30&&v<pv*0.7){
         const p=Math.round((v-pv)/pv*100);
         signals.push({type:'warning',text:`${m.n}（${label}）急落 ${p}%`,detail:`${pv}万 → ${v}万 — 原因確認が必要`});
-        if(store==='create') createFallers.push(m.n); else plusFallers.push(m.n);
+        if(isCreate) createFallers.push(m.n); else plusFallers.push(m.n);
       }
       if(pv!==null&&pv>0&&v>=pv*1.5&&v>=50){
         const p=Math.round((v-pv)/pv*100);
-        riserSig.push({type:'positive',text:`${m.n}（${label}）急成長 +${p}%`,detail:`${pv}万 → ${v}万`,pct:p,store,n:m.n});
+        localRisers.push({type:'positive',text:`${m.n}（${label}）急成長 +${p}%`,detail:`${pv}万 → ${v}万`,pct:p,isCreate,n:m.n});
       }
     });
-  });
-
-  riserSig.sort((a,b)=>b.pct-a.pct);
-  riserSig.slice(0,3).forEach(s=>{
+    return localRisers;
+  }
+  const allRisers=[...scanStore(CREATE_INDIV,'本店',true),...scanStore(PLUS_INDIV,'PLUS',false)];
+  allRisers.sort((a,b)=>b.pct-a.pct);
+  allRisers.slice(0,3).forEach(s=>{
     signals.push(s);
-    if(s.store==='create') createRisers.push(s.n); else plusRisers.push(s.n);
+    if(s.isCreate) createRisers.push(s.n); else plusRisers.push(s.n);
   });
 
   const hA=cur.CREATE.achRate, pA=cur.PLUS.achRate;
