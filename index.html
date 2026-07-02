@@ -441,7 +441,7 @@ function generateIntel(key, prevKey) {
   const cur=MONTHLY[key];
   const signals=[],riserSig=[],actions=[],fallers=[],zeros=[];
 
-  function gv(m,idx){ return [m.m3,m.m4,m.m5][idx]??0; }
+  function gv(m,idx){ return (m[mKey(MONTHS[idx])]??0); }
 
   [{arr:CREATE_INDIV,label:'本店'},{arr:PLUS_INDIV,label:'PLUS'}].forEach(({arr,label})=>{
     arr.forEach(m=>{
