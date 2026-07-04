@@ -269,6 +269,10 @@ body{
       <div class="chart-wrap" style="height:220px"><canvas id="gShareChart"></canvas></div>
     </div>
   </div>
+  <div class="card">
+    <div class="card-title">総卓数・スタッフ数推移</div>
+    <div class="chart-wrap" style="height:220px"><canvas id="gVolChart"></canvas></div>
+  </div>
   <div class="g2h">
     <div class="card">
       <div class="card-title">CREATE — 達成状況</div>
@@ -287,6 +291,10 @@ body{
     <div class="card-title">GROUP 個人売上ランキング — 当月</div>
     <table class="dtable" id="groupRankTable"></table>
   </div>
+  <div class="card">
+    <div class="card-title">GROUP 個人総卓数ランキング — 当月</div>
+    <table class="dtable" id="groupVolRankTable"></table>
+  </div>
 </div>
 
 <!-- ========== CREATE ========== -->
@@ -297,8 +305,16 @@ body{
     <div class="chart-wrap" style="height:200px"><canvas id="cTrendChart"></canvas></div>
   </div>
   <div class="card">
+    <div class="card-title">総卓数・スタッフ数推移</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="cVolChart"></canvas></div>
+  </div>
+  <div class="card">
     <div class="card-title">個人別売上（万円）— 当月降順</div>
     <table class="dtable" id="cIndivTable"></table>
+  </div>
+  <div class="card">
+    <div class="card-title">個人総卓数ランキング — 当月</div>
+    <table class="dtable" id="cVolRankTable"></table>
   </div>
 </div>
 
@@ -310,8 +326,16 @@ body{
     <div class="chart-wrap" style="height:190px"><canvas id="pTrendChart"></canvas></div>
   </div>
   <div class="card">
+    <div class="card-title">総卓数・スタッフ数推移</div>
+    <div class="chart-wrap" style="height:190px"><canvas id="pVolChart"></canvas></div>
+  </div>
+  <div class="card">
     <div class="card-title">個人別売上（万円）— 当月降順</div>
     <table class="dtable" id="pIndivTable"></table>
+  </div>
+  <div class="card">
+    <div class="card-title">個人総卓数ランキング — 当月</div>
+    <table class="dtable" id="pVolRankTable"></table>
   </div>
 </div>
 
@@ -392,19 +416,19 @@ body{
 const MONTHLY = {
   '2026-03': {
     CREATE: { target:30000000, sales:23260000, achRate:78,  newC:119, repeatC:36,  formalV:412, totalV:531 },
-    PLUS:   { target:25000000, sales:18020000, achRate:72,  newC:111, repeatRate:17.1, avgSpend:43738, uncRate:6.0 },
+    PLUS:   { target:25000000, sales:18020000, achRate:72,  newC:111, repeatRate:17.1, avgSpend:43738, uncRate:6.0, totalV:412 },
   },
   '2026-04': {
     CREATE: { target:27820000, sales:19470000, achRate:69,  newC:129, repeatC:30,  formalV:390, totalV:519 },
-    PLUS:   { target:25000000, sales:23910000, achRate:96,  newC:92,  repeatRate:31.5, avgSpend:48600, uncRate:6.6 },
+    PLUS:   { target:25000000, sales:23910000, achRate:96,  newC:92,  repeatRate:31.5, avgSpend:48600, uncRate:6.6, totalV:492 },
   },
   '2026-05': {
     CREATE: { target:29000000, sales:27230000, achRate:94,  newC:78,  repeatC:26,  formalV:454, totalV:532 },
-    PLUS:   { target:25000000, sales:27300000, achRate:109, newC:69,  repeatRate:42.0, avgSpend:58331, uncRate:2.8 },
+    PLUS:   { target:25000000, sales:27300000, achRate:109, newC:69,  repeatRate:42.0, avgSpend:58331, uncRate:2.8, totalV:468 },
   },
   '2026-06': {
     CREATE: { target:30000000, sales:26131200, achRate:87,  newC:72,  repeatC:24,  formalV:463, totalV:539 },
-    PLUS:   { target:25000000, sales:26562500, achRate:106, newC:67,  repeatRate:34.3, avgSpend:62062, uncRate:6.5 },
+    PLUS:   { target:25000000, sales:26562500, achRate:106, newC:67,  repeatRate:34.3, avgSpend:62062, uncRate:6.5, totalV:428 },
   },
 };
 
@@ -424,61 +448,61 @@ const CREATE_TEAMS = {
 };
 
 const CREATE_INDIV = [
-  {n:'KEN',       m3:322, m4:71,  m5:108, m6:22,  tag3:'新入'},
-  {n:'Revelo',    m3:81,  m4:111, m5:365, m6:75,  tag3:'新入'},
-  {n:'RYOTO',     m3:224, m4:204, m5:200, m6:133},
-  {n:'神鬼',      m3:170, m4:115, m5:243, m6:157},
-  {n:'エイト',    m3:50,  m4:98,  m5:172, m6:262, tag3:'新入'},
-  {n:'太陽',      m3:89,  m4:75,  m5:158, m6:195, tag3:'新入'},
-  {n:'一歩',      m3:187, m4:133, m5:151, m6:156},
-  {n:'綾',        m3:157, m4:193, m5:135, m6:100},
-  {n:'夏目',      m3:133, m4:113, m5:105, m6:104},
-  {n:'Rui',       m3:106, m4:78,  m5:71,  m6:277},
-  {n:'椿',        m3:4,   m4:30,  m5:79,  m6:80},
-  {n:'まきばおう', m3:63,  m4:81,  m5:56,  m6:134, tag3:'新入'},
-  {n:'コタロー',  m3:36,  m4:41,  m5:36,  m6:46,  mgmt:true},
-  {n:'SORA',      m3:33,  m4:60,  m5:74,  m6:91},
-  {n:'ウタ',      m3:0,   m4:6,   m5:18,  m6:6},
-  {n:'虎丸',      m3:27,  m4:2,   m5:0,   m6:9},
-  {n:'GON',       m3:2,   m4:6,   m5:3,   m6:18},
-  {n:'十座',      m3:2,   m4:1,   m5:3,   m6:42,  tag3:'新入'},
-  {n:'染流華',    m3:0,   m4:0,   m5:17,  m6:18},
-  {n:'愁時',      m3:0,   m4:0,   m5:8,   m6:9,   mgmt:true},
-  {n:'YOSHI',     m3:null,m4:null,m5:null,m6:0,   tag6:'新入'},
-  {n:'春治',      m3:0,   m4:0,   m5:0,   m6:0,   mgmt:true},
-  {n:'九喇嘛',    m3:0,   m4:0,   m5:1,   m6:0},
-  {n:'SOMARUKA',  m3:3,   m4:13,  m5:18,  m6:0},
-  {n:'KAZU',      m3:5,   m4:2,   m5:5,   m6:0,   mgmt:true},
-  {n:'クラマ',    m3:0,   m4:0,   m5:2,   m6:0},
-  {n:'蘭',        m3:0,   m4:0,   m5:0,   m6:0},
-  {n:'ライム',    m3:0,   m4:0,   m5:0,   m6:0,   mgmt:true},
+  {n:'KEN',       m3:322, m4:71,  m5:108, m6:22,  t3:27,  t4:27,  t5:22,  t6:5,   tag3:'新入'},
+  {n:'Revelo',    m3:81,  m4:111, m5:365, m6:75,  t3:43,  t4:43,  t5:36,  t6:38,  tag3:'新入'},
+  {n:'RYOTO',     m3:224, m4:204, m5:200, m6:133, t3:76,  t4:69,  t5:65,  t6:60},
+  {n:'神鬼',      m3:170, m4:115, m5:243, m6:157, t3:36,  t4:23,  t5:24,  t6:20},
+  {n:'エイト',    m3:50,  m4:98,  m5:172, m6:262, t3:17,  t4:17,  t5:24,  t6:45,  tag3:'新入'},
+  {n:'太陽',      m3:89,  m4:75,  m5:158, m6:195, t3:38,  t4:38,  t5:60,  t6:46,  tag3:'新入'},
+  {n:'一歩',      m3:187, m4:133, m5:151, m6:156, t3:68,  t4:43,  t5:48,  t6:45},
+  {n:'綾',        m3:157, m4:193, m5:135, m6:100, t3:53,  t4:56,  t5:43,  t6:56},
+  {n:'夏目',      m3:133, m4:113, m5:105, m6:104, t3:37,  t4:40,  t5:39,  t6:44},
+  {n:'Rui',       m3:106, m4:78,  m5:71,  m6:277, t3:22,  t4:22,  t5:25,  t6:32},
+  {n:'椿',        m3:4,   m4:30,  m5:79,  m6:80,  t3:11,  t4:11,  t5:34,  t6:25},
+  {n:'まきばおう', m3:63,  m4:81,  m5:56,  m6:134, t3:16,  t4:16,  t5:10,  t6:20,  tag3:'新入'},
+  {n:'コタロー',  m3:36,  m4:41,  m5:36,  m6:46,  t3:28,  t4:28,  t5:28,  t6:24,  mgmt:true},
+  {n:'SORA',      m3:33,  m4:60,  m5:74,  m6:91,  t3:14,  t4:12,  t5:13,  t6:11},
+  {n:'ウタ',      m3:0,   m4:6,   m5:18,  m6:6,   t3:0,   t4:0,   t5:9,   t6:3},
+  {n:'虎丸',      m3:27,  m4:2,   m5:0,   m6:9,   t3:11,  t4:11,  t5:2,   t6:3},
+  {n:'GON',       m3:2,   m4:6,   m5:3,   m6:18,  t3:3,   t4:3,   t5:3,   t6:7},
+  {n:'十座',      m3:2,   m4:1,   m5:3,   m6:42,  t3:2,   t4:2,   t5:2,   t6:17,  tag3:'新入'},
+  {n:'染流華',    m3:0,   m4:0,   m5:17,  m6:18,  t3:null,t4:null,t5:null,t6:19},
+  {n:'愁時',      m3:0,   m4:0,   m5:8,   m6:9,   t3:null,t4:null,t5:1,   t6:2,   mgmt:true},
+  {n:'YOSHI',     m3:null,m4:null,m5:null,m6:0,   t3:null,t4:null,t5:null,t6:0,   tag6:'新入'},
+  {n:'春治',      m3:0,   m4:0,   m5:0,   m6:0,   t3:1,   t4:1,   t5:0,   t6:0,   mgmt:true},
+  {n:'九喇嘛',    m3:0,   m4:0,   m5:1,   m6:0,   t3:null,t4:null,t5:2,   t6:0},
+  {n:'SOMARUKA',  m3:3,   m4:13,  m5:18,  m6:0,   t3:4,   t4:4,   t5:29,  t6:null},
+  {n:'KAZU',      m3:5,   m4:2,   m5:5,   m6:0,   t3:4,   t4:4,   t5:4,   t6:0,   mgmt:true},
+  {n:'クラマ',    m3:0,   m4:0,   m5:2,   m6:0,   t3:null,t4:null,t5:null,t6:null},
+  {n:'蘭',        m3:0,   m4:0,   m5:0,   m6:0,   t3:null,t4:null,t5:0,   t6:0},
+  {n:'ライム',    m3:0,   m4:0,   m5:0,   m6:0,   t3:null,t4:null,t5:0,   t6:0,   mgmt:true},
 ];
 
 const PLUS_INDIV = [
-  {n:'はるぼー', m3:402, m4:539, m5:834, m6:445},
-  {n:'リト',     m3:266, m4:315, m5:230, m6:465},
-  {n:'凱莉',     m3:225, m4:204, m5:181, m6:172},
-  {n:'ひより',   m3:104, m4:290, m5:153, m6:189},
-  {n:'摩生斗',   m3:123, m4:144, m5:104, m6:102},
-  {n:'ショコラ', m3:86,  m4:82,  m5:343, m6:280},
-  {n:'慶次',     m3:82,  m4:86,  m5:76,  m6:81},
-  {n:'のん',     m3:18,  m4:43,  m5:32,  m6:56},
-  {n:'ルハン',   m3:0,   m4:11,  m5:21,  m6:19,  tag3:'研修'},
-  {n:'澪夢',     m3:3,   m4:13,  m5:13,  m6:11},
-  {n:'ツバサ',   m3:2,   m4:4,   m5:9,   m6:0,   tag6:'退店'},
-  {n:'夢斗',     m3:0,   m4:0,   m5:7,   m6:29,  tag4:'新入'},
-  {n:'恋',       m3:null,m4:null,m5:6,   m6:100, tag5:'新入'},
-  {n:'太聖',     m3:null,m4:null,m5:0,   m6:53,  tag6:'退店'},
-  {n:'GON',      m3:null,m4:null,m5:1,   m6:0,   tag5:'移籍'},
-  {n:'百',       m3:0,   m4:6,   m5:0,   m6:6},
-  {n:'ウル',     m3:3,   m4:6,   m5:3,   m6:1,   tag6:'退店'},
-  {n:'アキ',     m3:1,   m4:0,   m5:0,   m6:0},
-  {n:'瑠碧',     m3:0,   m4:0,   m5:3,   m6:0},
-  {n:'愛',       m3:0,   m4:0,   m5:0,   m6:0,   mgmt:true},
-  {n:'ラル',     m3:0,   m4:0,   m5:0,   m6:0,   mgmt:true},
-  {n:'マナ',     m3:null,m4:null,m5:null,m6:null, mgmt:true, mgmtSales:true},
-  {n:'龍雅',     m3:0,   m4:0,   m5:0,   m6:0},
-  {n:'つくし',   m3:null,m4:null,m5:0,   m6:1,   tag6:'退店'},
+  {n:'はるぼー', m3:402, m4:539, m5:834, m6:445, t3:60,  t4:61,  t5:53,  t6:32},
+  {n:'リト',     m3:266, m4:315, m5:230, m6:465, t3:64,  t4:66,  t5:54,  t6:50},
+  {n:'凱莉',     m3:225, m4:204, m5:181, m6:172, t3:52,  t4:55,  t5:60,  t6:57},
+  {n:'ひより',   m3:104, m4:290, m5:153, m6:189, t3:42,  t4:66,  t5:56,  t6:56},
+  {n:'摩生斗',   m3:123, m4:144, m5:104, m6:102, t3:32,  t4:47,  t5:35,  t6:28},
+  {n:'ショコラ', m3:86,  m4:82,  m5:343, m6:280, t3:25,  t4:43,  t5:39,  t6:31},
+  {n:'慶次',     m3:82,  m4:86,  m5:76,  m6:81,  t3:28,  t4:30,  t5:27,  t6:25},
+  {n:'のん',     m3:18,  m4:43,  m5:32,  m6:56,  t3:16,  t4:23,  t5:26,  t6:33},
+  {n:'ルハン',   m3:0,   m4:11,  m5:21,  m6:19,  t3:null,t4:8,   t5:20,  t6:14,  tag3:'研修'},
+  {n:'澪夢',     m3:3,   m4:13,  m5:13,  m6:11,  t3:5,   t4:15,  t5:11,  t6:9},
+  {n:'ツバサ',   m3:2,   m4:4,   m5:9,   m6:0,   t3:4,   t4:12,  t5:14,  t6:0,   tag6:'退店'},
+  {n:'夢斗',     m3:0,   m4:0,   m5:7,   m6:29,  t3:null,t4:0,   t5:11,  t6:12,  tag4:'新入'},
+  {n:'恋',       m3:null,m4:null,m5:6,   m6:100, t3:null,t4:null,t5:9,   t6:11,  tag5:'新入'},
+  {n:'太聖',     m3:null,m4:null,m5:0,   m6:53,  t3:null,t4:null,t5:0,   t6:30,  tag6:'退店'},
+  {n:'GON',      m3:null,m4:null,m5:1,   m6:0,   t3:null,t4:null,t5:4,   t6:null,tag5:'移籍'},
+  {n:'百',       m3:0,   m4:6,   m5:0,   m6:6,   t3:0,   t4:2,   t5:0,   t6:4},
+  {n:'ウル',     m3:3,   m4:6,   m5:3,   m6:1,   t3:3,   t4:5,   t5:5,   t6:2,   tag6:'退店'},
+  {n:'アキ',     m3:1,   m4:0,   m5:0,   m6:0,   t3:2,   t4:0,   t5:0,   t6:0},
+  {n:'瑠碧',     m3:0,   m4:0,   m5:3,   m6:0,   t3:null,t4:null,t5:2,   t6:null},
+  {n:'愛',       m3:0,   m4:0,   m5:0,   m6:0,   t3:0,   t4:0,   t5:0,   t6:0,   mgmt:true},
+  {n:'ラル',     m3:0,   m4:0,   m5:0,   m6:0,   t3:0,   t4:0,   t5:0,   t6:0,   mgmt:true},
+  {n:'マナ',     m3:null,m4:null,m5:null,m6:null, t3:null,t4:null,t5:null,t6:null, mgmt:true, mgmtSales:true},
+  {n:'龍雅',     m3:0,   m4:0,   m5:0,   m6:0,   t3:0,   t4:0,   t5:0,   t6:null},
+  {n:'つくし',   m3:null,m4:null,m5:0,   m6:1,   t3:null,t4:null,t5:0,   t6:1,   tag6:'退店'},
 ];
 
 // ============================================================
@@ -536,7 +560,60 @@ const EVENTS = [
 const MONTHS = Object.keys(MONTHLY).sort();
 let curIdx = MONTHS.length - 1;
 let activeTab = 'group';
-let gTrend, gShare, cTrend, pTrend;
+let gTrend, gShare, cTrend, pTrend, gVol, cVol, pVol;
+
+// 7月報告分から個人売上はTAX込み集計に変更（m7以降のデータが入ると自動で注記が付く）
+const TAX_INCLUSIVE_FROM_MONTH = 7;
+function taxNote(mNum){ return mNum>=TAX_INCLUSIVE_FROM_MONTH ? '<span style="font-size:8px;color:#888;margin-left:2px">(税込)</span>' : ''; }
+function tKeyOf(key){ return 't'+parseInt(key.split('-')[1]); }
+function staffCount(arr, mNum){ return arr.filter(d=>d['m'+mNum]!=null).length; }
+
+// 総卓数＋スタッフ数 複合チャート（棒＝卓数 / 折れ線＝スタッフ数）
+function makeVolChart(canvasId, barDatasets, staffData){
+  return new Chart(document.getElementById(canvasId),{
+    type:'bar',
+    data:{
+      labels:MONTHS.map(m=>parseInt(m.split('-')[1])+'月'),
+      datasets:[
+        ...barDatasets,
+        {type:'line',label:'スタッフ数',data:staffData,
+         borderColor:'#e0e0e0',backgroundColor:'transparent',borderWidth:2,
+         pointRadius:3,pointBackgroundColor:'#e0e0e0',tension:.3,yAxisID:'y1'},
+      ],
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#fff',font:{size:11},boxWidth:10}}},
+      scales:{
+        x:{stacked:true,ticks:{color:'#fff',font:{size:11}},grid:{color:'#2a2a2a'}},
+        y:{stacked:true,ticks:{color:'#fff',font:{size:11},callback:v=>v+'卓'},grid:{color:'#2a2a2a'},min:0},
+        y1:{position:'right',ticks:{color:'#888',font:{size:10},callback:v=>v+'名',precision:0},grid:{display:false},min:0},
+      },
+    },
+  });
+}
+
+// 総卓数ランキングテーブル（売上ランキングと同形式）
+function renderVolRank(tableId, cast, key, prevKey, showStore){
+  const tk=tKeyOf(key), pk=prevKey?tKeyOf(prevKey):null;
+  const curMNum=parseInt(key.split('-')[1]);
+  const exited=(d,mNum)=>{for(let n=3;n<=mNum;n++){if(d['tag'+n]==='退店')return true;}return false;};
+  const ranked=cast.filter(d=>(d[tk]??0)>0&&!exited(d,curMNum)).sort((a,b)=>(b[tk]??0)-(a[tk]??0));
+  document.getElementById(tableId).innerHTML=`
+    <thead><tr><th>#</th><th style="text-align:left">名前</th>${showStore?'<th>店舗</th>':''}<th>総卓数</th>${pk?'<th>前月比</th>':''}</tr></thead>
+    <tbody>${ranked.map((d,i)=>{
+      const cur=d[tk]??0, prv=pk?(d[pk]??0):0;
+      const momHtml=pk?(prv===0?'<td style="color:#666">—</td>':`<td>${fmtMoM(cur,prv)}</td>`):'';
+      const storeHtml=showStore?`<td><span style="font-size:9px;background:${d.store==='CREATE'?'rgba(196,151,74,0.15)':'rgba(109,184,109,0.15)'};color:${d.store==='CREATE'?'#c4974a':'#6db86d'};padding:2px 7px;border-radius:3px;letter-spacing:.08em">${d.store}</span></td>`:'';
+      return `<tr>
+        <td style="color:#c4974a;font-family:'EB Garamond',serif;font-size:16px">${i+1}</td>
+        <td>${d.n}</td>
+        ${storeHtml}
+        <td style="font-family:'EB Garamond',serif;color:#e8e8e8">${cur}卓</td>
+        ${momHtml}
+      </tr>`;}).join('')}
+    </tbody>`;
+}
 
 // ============================================================
 // UTILS
@@ -788,6 +865,13 @@ function renderGroup(key, prevKey) {
     },
   });
 
+  // 総卓数・スタッフ数推移
+  if(gVol) gVol.destroy();
+  gVol=makeVolChart('gVolChart',[
+    {label:'CREATE',data:MONTHS.map(m=>MONTHLY[m].CREATE.totalV),backgroundColor:'#c4974acc',borderColor:'#c4974a',borderWidth:1,stack:'v'},
+    {label:'PLUS',  data:MONTHS.map(m=>MONTHLY[m].PLUS.totalV),  backgroundColor:'#7aadaacc',borderColor:'#7aadaa',borderWidth:1,stack:'v'},
+  ],MONTHS.map(m=>{const n=parseInt(m.split('-')[1]);return staffCount(CREATE_INDIV,n)+staffCount(PLUS_INDIV,n);}));
+
   // Achievement cards
   function achHtml(d){
     const r=d.achRate, color=r>=100?'#6db86d':'#c4974a';
@@ -845,6 +929,9 @@ function renderGroup(key, prevKey) {
         ${momHtml}
       </tr>`;}).join('')}
     </tbody>`;
+
+  // GROUP個人総卓数ランキング
+  renderVolRank('groupVolRankTable', allCast, key, prevKey, true);
 
   // Compare table
   document.getElementById('groupCmpTable').innerHTML=`
@@ -910,14 +997,22 @@ function renderCreate(key, prevKey) {
     },
   });
 
+  // 総卓数・スタッフ数推移
+  if(cVol) cVol.destroy();
+  cVol=makeVolChart('cVolChart',[
+    {label:'総卓数',data:MONTHS.map(m=>MONTHLY[m].CREATE.totalV),backgroundColor:'#c4974a55',borderColor:'#c4974a',borderWidth:1},
+  ],MONTHS.map(m=>staffCount(CREATE_INDIV,parseInt(m.split('-')[1]))));
+
   // Individual table — sorted by current month, dynamic columns (last 3 months)
   const curMNum=parseInt(key.split('-')[1]);
+  const tkC=tKeyOf(key);
   const sorted=[...CREATE_INDIV].filter(d=>!isExited(d,curMNum)).sort((a,b)=>(b[mk]??-1)-(a[mk]??-1));
   const recentMonths=MONTHS.slice(-3);
   document.getElementById('cIndivTable').innerHTML=`
     <thead><tr>
       <th style="text-align:left">スタッフ</th>
-      ${recentMonths.map(m=>`<th style="color:${m===key?'#c4974a':'#555'}">${parseInt(m.split('-')[1])}月</th>`).join('')}
+      ${recentMonths.map(m=>{const tn=parseInt(m.split('-')[1]);return`<th style="color:${m===key?'#c4974a':'#555'}">${tn}月${taxNote(tn)}</th>`;}).join('')}
+      <th style="color:#c4974a">卓数</th>
     </tr></thead>
     <tbody>${sorted.map(d=>{
       const tagHtml=recentMonths.map(m=>{const tn=parseInt(m.split('-')[1]);const t=d['tag'+tn];if(!t)return '';const cls=t==='退店'?'badge-exit':t==='移籍'?'badge-move':'badge-new';return`<span class="badge ${cls}">${t}</span>`;}).join('');
@@ -925,7 +1020,11 @@ function renderCreate(key, prevKey) {
       return`<tr>
         <td>${d.n}${mgmtBadge}${tagHtml}</td>
         ${recentMonths.map(m=>{const mk2=mKey(m);return`<td style="color:${m===key?'#e0e0e0':'#555'}">${d[mk2]??'—'}</td>`;}).join('')}
+        <td style="color:#e0e0e0">${d[tkC]??'—'}</td>
       </tr>`;}).join('')}</tbody>`;
+
+  // 個人総卓数ランキング
+  renderVolRank('cVolRankTable', CREATE_INDIV, key, prevKey, false);
 }
 
 // ============================================================
@@ -981,8 +1080,15 @@ function renderPlus(key, prevKey) {
     },
   });
 
+  // 総卓数・スタッフ数推移
+  if(pVol) pVol.destroy();
+  pVol=makeVolChart('pVolChart',[
+    {label:'総卓数',data:MONTHS.map(m=>MONTHLY[m].PLUS.totalV),backgroundColor:'#7aadaa55',borderColor:'#7aadaa',borderWidth:1},
+  ],MONTHS.map(m=>staffCount(PLUS_INDIV,parseInt(m.split('-')[1]))));
+
   // Individual
   const curMNumP=parseInt(key.split('-')[1]);
+  const tkP=tKeyOf(key);
   const sorted=[...PLUS_INDIV].filter(d=>!isExited(d,curMNumP)).sort((a,b)=>(b[mk]??-1)-(a[mk]??-1));
   function tagHtml(d){
     const tags=[];
@@ -997,13 +1103,18 @@ function renderPlus(key, prevKey) {
   document.getElementById('pIndivTable').innerHTML=`
     <thead><tr>
       <th style="text-align:left">スタッフ</th>
-      ${recentMonthsP.map(m=>`<th style="color:${m===key?'#c4974a':'#555'}">${parseInt(m.split('-')[1])}月</th>`).join('')}
+      ${recentMonthsP.map(m=>{const tn=parseInt(m.split('-')[1]);return`<th style="color:${m===key?'#c4974a':'#555'}">${tn}月${taxNote(tn)}</th>`;}).join('')}
+      <th style="color:#c4974a">卓数</th>
     </tr></thead>
     <tbody>${sorted.map(d=>`
       <tr>
         <td>${d.n}${d.mgmt?'<span class="badge badge-move">運営</span>':''}${tagHtml(d)}</td>
         ${recentMonthsP.map(m=>{const mk2=mKey(m);return`<td style="color:${m===key?'#e0e0e0':'#555'}">${d[mk2]!=null?d[mk2]:'—'}</td>`;}).join('')}
+        <td style="color:#e0e0e0">${d[tkP]??'—'}</td>
       </tr>`).join('')}</tbody>`;
+
+  // 個人総卓数ランキング
+  renderVolRank('pVolRankTable', PLUS_INDIV, key, prevKey, false);
 }
 
 // ============================================================
