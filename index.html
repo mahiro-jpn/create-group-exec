@@ -46,14 +46,21 @@ body{
   color:#999;cursor:pointer;border-bottom:2px solid transparent;
   transition:all .2s;font-weight:300;
 }
-.tab-btn:hover{color:#888;}
-.tab-btn.active{color:#c4974a;border-bottom-color:#c4974a;text-shadow:0 0 16px rgba(196,151,74,0.3);}
+.tab-btn:hover{color:#888;transform:translateY(-1px);}
+.tab-btn{transition:all .2s,transform .2s ease;}
+.tab-btn.active{
+  color:#c4974a;border-bottom-color:#c4974a;
+  text-shadow:0 1px 0 rgba(0,0,0,0.6),0 0 16px rgba(196,151,74,0.3);
+  background:linear-gradient(180deg,rgba(196,151,74,0.07),transparent);
+  box-shadow:inset 0 1px 0 rgba(196,151,74,0.12);
+  border-radius:6px 6px 0 0;
+}
 
 .tab-content{display:none;padding:28px 32px;}
 .tab-content.active{display:block;animation:fadeUp .3s ease;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
-.kpi-row{display:grid;gap:10px;margin-bottom:16px;}
+.kpi-row{display:grid;gap:10px;margin-bottom:16px;perspective:900px;}
 .kpi-r5{grid-template-columns:repeat(5,1fr);}
 .kpi-r4{grid-template-columns:repeat(4,1fr);}
 .kpi-r6{grid-template-columns:repeat(6,1fr);}
@@ -61,16 +68,42 @@ body{
   background:linear-gradient(150deg,#232323,#1d1d1d);
   border:1px solid #282828;border-top:1px solid rgba(196,151,74,0.2);
   border-radius:8px;padding:16px 18px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.35);
-  transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.4),
+    0 4px 10px rgba(0,0,0,0.35),
+    0 12px 28px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+  transition:transform .28s cubic-bezier(.22,.68,.35,1),box-shadow .28s ease;
+  position:relative;overflow:hidden;
+  transform-style:preserve-3d;will-change:transform;
 }
 .kpi::after{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,rgba(196,151,74,0.3),transparent);
 }
-.kpi:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.45),0 0 0 1px rgba(196,151,74,0.15);}
+.kpi::before{
+  content:'';position:absolute;inset:0;pointer-events:none;opacity:0;
+  background:radial-gradient(120% 90% at 50% -10%,rgba(196,151,74,0.12),transparent 60%);
+  transition:opacity .28s ease;
+}
+.kpi:hover{
+  transform:translateY(-5px) rotateX(4deg) scale(1.015);
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.45),
+    0 10px 22px rgba(0,0,0,0.45),
+    0 26px 52px rgba(0,0,0,0.4),
+    0 0 0 1px rgba(196,151,74,0.22),
+    0 0 26px rgba(196,151,74,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.kpi:hover::before{opacity:1;}
+.kpi:hover .kpi-value{transform:translateY(-1px) scale(1.045);}
 .kpi-label{font-size:9px;color:#999;letter-spacing:.13em;text-transform:uppercase;margin-bottom:8px;}
-.kpi-value{font-family:'EB Garamond',serif;font-size:28px;color:#c4974a;line-height:1.1;}
+.kpi-value{
+  font-family:'EB Garamond',serif;font-size:28px;color:#c4974a;line-height:1.1;
+  display:inline-block;transition:transform .28s cubic-bezier(.22,.68,.35,1);
+  text-shadow:0 1px 0 rgba(0,0,0,0.55),0 2px 3px rgba(0,0,0,0.4),0 0 22px rgba(196,151,74,0.18);
+}
 .kpi-unit{font-size:12px;color:#666;margin-left:3px;}
 .kpi-change{font-size:10px;margin-top:5px;min-height:14px;}
 .up{color:#6db86d;} .down{color:#c76b6b;} .flat{color:#999;}
@@ -82,9 +115,22 @@ body{
 .card{
   background:linear-gradient(155deg,#212121,#1c1c1c);
   border:1px solid #272727;border-radius:10px;padding:22px;margin-bottom:14px;
-  box-shadow:0 4px 24px rgba(0,0,0,0.4);transition:box-shadow .2s;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.45),
+    0 6px 16px rgba(0,0,0,0.38),
+    0 18px 40px rgba(0,0,0,0.32),
+    inset 0 1px 0 rgba(255,255,255,0.035);
+  transition:transform .3s cubic-bezier(.22,.68,.35,1),box-shadow .3s ease;
 }
-.card:hover{box-shadow:0 6px 32px rgba(0,0,0,0.5);}
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.5),
+    0 12px 26px rgba(0,0,0,0.45),
+    0 30px 60px rgba(0,0,0,0.38),
+    0 0 0 1px rgba(196,151,74,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
 .card-title{
   font-size:9px;color:#999;letter-spacing:.16em;text-transform:uppercase;margin-bottom:18px;
   display:flex;align-items:center;gap:10px;
@@ -101,7 +147,19 @@ body{
 .dtable td{padding:10px 12px;border-bottom:1px solid #202020;text-align:right;color:#bbb;vertical-align:middle;}
 .dtable td:first-child{text-align:left;color:#c4974a;}
 .dtable tr:last-child td{border-bottom:none;}
-.dtable tr:hover td{background:rgba(196,151,74,0.035);}
+.dtable tbody tr{transition:background .2s,box-shadow .2s;}
+.dtable tbody tr:hover td{
+  background:rgba(196,151,74,0.045);
+  box-shadow:inset 0 1px 0 rgba(196,151,74,0.08),inset 0 -1px 0 rgba(0,0,0,0.3);
+}
+#groupRankTable tbody tr:nth-child(-n+3) td{
+  background:linear-gradient(180deg,rgba(196,151,74,0.055),rgba(196,151,74,0.02));
+  box-shadow:inset 0 1px 0 rgba(196,151,74,0.1),inset 0 -1px 0 rgba(0,0,0,0.35);
+}
+#groupRankTable tbody tr:first-child td:first-child{
+  text-shadow:0 1px 0 rgba(0,0,0,0.6),0 0 14px rgba(196,151,74,0.45);
+  font-size:18px;
+}
 .total-row td{color:#e8e8e8;border-top:1px solid #2a2a2a;font-weight:400;padding-top:12px;}
 
 .ach-bar-bg{background:#1a1a1a;border-radius:3px;height:3px;margin-top:8px;overflow:hidden;}
@@ -118,7 +176,7 @@ body{
 .fin-row{display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-bottom:1px solid #1e1e1e;}
 .fin-row:last-child{border-bottom:none;}
 .fin-label{font-size:11px;color:#ccc;}
-.fin-val{font-family:'EB Garamond',serif;font-size:20px;color:#e0e0e0;}
+.fin-val{font-family:'EB Garamond',serif;font-size:20px;color:#e0e0e0;text-shadow:0 1px 0 rgba(0,0,0,0.5),0 2px 4px rgba(0,0,0,0.3);}
 .fin-unit{font-size:11px;color:#aaa;margin-left:3px;}
 
 .tl-item{display:flex;gap:20px;padding:18px 0;border-bottom:1px solid #1e1e1e;}
@@ -149,6 +207,16 @@ body{
 @keyframes splashIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 @keyframes splashOut{to{opacity:0;visibility:hidden;}}
 
+@media(hover:none){
+  .kpi:hover{transform:none;}
+  .kpi:hover .kpi-value{transform:none;}
+  .card:hover{transform:none;}
+  .tab-btn:hover{transform:none;}
+}
+@media(prefers-reduced-motion:reduce){
+  .kpi,.card,.kpi-value,.tab-btn{transition:none;}
+  .kpi:hover,.card:hover{transform:none;}
+}
 @media(max-width:768px){
   .kpi-r4,.kpi-r5,.kpi-r6{grid-template-columns:repeat(2,1fr);}
   .g2,.g3,.g2h{grid-template-columns:1fr;}
