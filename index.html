@@ -430,6 +430,10 @@ const MONTHLY = {
     CREATE: { target:30000000, sales:26131200, achRate:87,  newC:72,  repeatC:24,  formalV:463, totalV:539 },
     PLUS:   { target:25000000, sales:26562500, achRate:106, newC:67,  repeatRate:34.3, avgSpend:62062, uncRate:6.5, totalV:428 },
   },
+  '2026-07': {
+    CREATE: { target:22000000, sales:22555700, achRate:103, newC:87, repeatC:18, formalV:355, totalV:442 },
+    PLUS:   { target:25000000, sales:21685500, achRate:87, newC:71, repeatRate:28.2, avgSpend:49173, uncRate:4.1, totalV:441 },
+  },
 };
 
 const CREATE_TREND = [
@@ -439,6 +443,7 @@ const CREATE_TREND = [
   {m:'R8/2', s:20050000},{m:'R8/3', s:23260000},{m:'R8/4', s:19470000},
   {m:'R8/5', s:27230000},
   {m:'R8/6', s:26131200},
+  {m:'R8/7', s:22555700},
 ];
 
 const CREATE_TEAMS = {
@@ -448,57 +453,61 @@ const CREATE_TEAMS = {
 };
 
 const CREATE_INDIV = [
-  {n:'KEN',       m3:322, m4:71,  m5:108, m6:22,  t3:27,  t4:27,  t5:22,  t6:5,   tag3:'新入'},
-  {n:'Revelo',    m3:81,  m4:111, m5:365, m6:75,  t3:43,  t4:43,  t5:36,  t6:38,  tag3:'新入'},
-  {n:'RYOTO',     m3:224, m4:204, m5:200, m6:133, t3:76,  t4:69,  t5:65,  t6:60},
-  {n:'神鬼',      m3:170, m4:115, m5:243, m6:157, t3:36,  t4:23,  t5:24,  t6:20},
-  {n:'エイト',    m3:50,  m4:98,  m5:172, m6:262, t3:17,  t4:17,  t5:24,  t6:45,  tag3:'新入'},
-  {n:'太陽',      m3:89,  m4:75,  m5:158, m6:195, t3:38,  t4:38,  t5:60,  t6:46,  tag3:'新入'},
-  {n:'一歩',      m3:187, m4:133, m5:151, m6:156, t3:68,  t4:43,  t5:48,  t6:45},
-  {n:'綾',        m3:157, m4:193, m5:135, m6:100, t3:53,  t4:56,  t5:43,  t6:56},
-  {n:'夏目',      m3:133, m4:113, m5:105, m6:104, t3:37,  t4:40,  t5:39,  t6:44},
-  {n:'Rui',       m3:106, m4:78,  m5:71,  m6:277, t3:22,  t4:22,  t5:25,  t6:32},
-  {n:'椿',        m3:4,   m4:30,  m5:79,  m6:80,  t3:11,  t4:11,  t5:34,  t6:25},
-  {n:'まきばおう', m3:63,  m4:81,  m5:56,  m6:134, t3:16,  t4:16,  t5:10,  t6:20,  tag3:'新入'},
-  {n:'コタロー',  m3:36,  m4:41,  m5:36,  m6:46,  t3:28,  t4:28,  t5:28,  t6:24,  mgmt:true},
-  {n:'SORA',      m3:33,  m4:60,  m5:74,  m6:91,  t3:14,  t4:12,  t5:13,  t6:11},
-  {n:'ウタ',      m3:0,   m4:6,   m5:18,  m6:6,   t3:0,   t4:0,   t5:9,   t6:3},
-  {n:'虎丸',      m3:27,  m4:2,   m5:0,   m6:9,   t3:11,  t4:11,  t5:2,   t6:3},
-  {n:'GON',       m3:2,   m4:6,   m5:3,   m6:18,  t3:3,   t4:3,   t5:3,   t6:7},
-  {n:'十座',      m3:2,   m4:1,   m5:3,   m6:42,  t3:2,   t4:2,   t5:2,   t6:17,  tag3:'新入'},
-  {n:'染流華',    m3:3,   m4:13,  m5:18,  m6:18,  t3:4,   t4:4,   t5:29,  t6:19},
-  {n:'愁時',      m3:0,   m4:0,   m5:8,   m6:9,   t3:null,t4:null,t5:1,   t6:2,   mgmt:true},
-  {n:'YOSHI',     m3:null,m4:null,m5:null,m6:0,   t3:null,t4:null,t5:null,t6:0,   tag6:'新入'},
-  {n:'春治',      m3:0,   m4:0,   m5:0,   m6:0,   t3:1,   t4:1,   t5:0,   t6:0,   mgmt:true},
-  {n:'九喇嘛',    m3:0,   m4:0,   m5:1,   m6:0,   t3:null,t4:null,t5:2,   t6:0},
-  {n:'KAZU',      m3:5,   m4:2,   m5:5,   m6:0,   t3:4,   t4:4,   t5:4,   t6:0,   mgmt:true},
+  {n:'KEN',       m3:322, m4:71,  m5:108, m6:22,  m7:89,  t3:27,  t4:27,  t5:22,  t6:5,   t7:17,  tag3:'新入'},
+  {n:'Revelo',    m3:81,  m4:111, m5:365, m6:75,  m7:106, t3:43,  t4:43,  t5:36,  t6:38,  t7:29,  tag3:'新入'},
+  {n:'RYOTO',     m3:224, m4:204, m5:200, m6:133, m7:124, t3:76,  t4:69,  t5:65,  t6:60,  t7:56},
+  {n:'神鬼',      m3:170, m4:115, m5:243, m6:157, m7:98,  t3:36,  t4:23,  t5:24,  t6:20,  t7:21},
+  {n:'エイト',    m3:50,  m4:98,  m5:172, m6:262, m7:197, t3:17,  t4:17,  t5:24,  t6:45,  t7:25,  tag3:'新入'},
+  {n:'太陽',      m3:89,  m4:75,  m5:158, m6:195, m7:72,  t3:38,  t4:38,  t5:60,  t6:46,  t7:31,  tag3:'新入'},
+  {n:'一歩',      m3:187, m4:133, m5:151, m6:156, t3:68,  t4:43,  t5:48,  t6:45,  tag7:'移籍'},
+  {n:'綾',        m3:157, m4:193, m5:135, m6:100, m7:151, t3:53,  t4:56,  t5:43,  t6:56,  t7:54},
+  {n:'夏目',      m3:133, m4:113, m5:105, m6:104, m7:120, t3:37,  t4:40,  t5:39,  t6:44,  t7:32},
+  {n:'Rui',       m3:106, m4:78,  m5:71,  m6:277, m7:280, t3:22,  t4:22,  t5:25,  t6:32,  t7:25},
+  {n:'椿',        m3:4,   m4:30,  m5:79,  m6:80,  m7:76,  t3:11,  t4:11,  t5:34,  t6:25,  t7:14},
+  {n:'祈',        m3:63,  m4:81,  m5:56,  m6:134, m7:79,  t3:16,  t4:16,  t5:10,  t6:20,  t7:14,  tag3:'新入'},
+  {n:'コタロー',  m3:36,  m4:41,  m5:36,  m6:46,  m7:38,  t3:28,  t4:28,  t5:28,  t6:24,  t7:27,  mgmt:true},
+  {n:'SORA',      m3:33,  m4:60,  m5:74,  m6:91,  m7:105, t3:14,  t4:12,  t5:13,  t6:11,  t7:8},
+  {n:'ウタ',      m3:0,   m4:6,   m5:18,  m6:6,   m7:3,   t3:0,   t4:0,   t5:9,   t6:3,   t7:2},
+  {n:'虎丸',      m3:27,  m4:2,   m5:0,   m6:9,   m7:7,   t3:11,  t4:11,  t5:2,   t6:3,   t7:4},
+  {n:'GON',       m3:2,   m4:6,   m5:3,   m6:18,  m7:3,   t3:3,   t4:3,   t5:3,   t6:7,   t7:5},
+  {n:'十座',      m3:2,   m4:1,   m5:3,   m6:42,  m7:100, t3:2,   t4:2,   t5:2,   t6:17,  t7:27,  tag3:'新入'},
+  {n:'染流華',    m3:3,   m4:13,  m5:18,  m6:18,  m7:9,   t3:4,   t4:4,   t5:29,  t6:19,  t7:9},
+  {n:'愁時',      m3:0,   m4:0,   m5:8,   m6:9,   m7:3,   t3:null,t4:null,t5:1,   t6:2,   t7:3,   mgmt:true},
+  {n:'YOSHI',     m3:null,m4:null,m5:null,m6:0,   m7:0,   t3:null,t4:null,t5:null,t6:0,   t7:0,   tag6:'新入'},
+  {n:'春治',      m3:0,   m4:0,   m5:0,   m6:0,   m7:0,   t3:1,   t4:1,   t5:0,   t6:0,   t7:0,   mgmt:true},
+  {n:'九喇嘛',    m3:0,   m4:0,   m5:1,   m6:0,   m7:2,   t3:null,t4:null,t5:2,   t6:0,   t7:2},
+  {n:'KAZU',      m3:5,   m4:2,   m5:5,   m6:0,   m7:0,   t3:4,   t4:4,   t5:4,   t6:0,   t7:0,   mgmt:true},
   {n:'クラマ',    m3:0,   m4:0,   m5:2,   m6:0,   t3:null,t4:null,t5:null,t6:null},
   {n:'蘭',        m3:0,   m4:0,   m5:0,   m6:0,   t3:null,t4:null,t5:0,   t6:0,   tag6:'退店'},
+  {n:'馨',        m7:1,   t7:2,   tag7:'新入'},
+  {n:'冬華',      m7:0,   t7:0,   tag7:'新入'},
 ];
 
 const PLUS_INDIV = [
-  {n:'はるぼー', m3:402, m4:539, m5:834, m6:445, t3:60,  t4:61,  t5:53,  t6:32},
-  {n:'リト',     m3:266, m4:315, m5:230, m6:465, t3:64,  t4:66,  t5:54,  t6:50},
-  {n:'凱莉',     m3:225, m4:204, m5:181, m6:172, t3:52,  t4:55,  t5:60,  t6:57},
-  {n:'ひより',   m3:104, m4:290, m5:153, m6:189, t3:42,  t4:66,  t5:56,  t6:56},
-  {n:'マナト',   m3:123, m4:144, m5:104, m6:102, t3:32,  t4:47,  t5:35,  t6:28},
-  {n:'ショコラ', m3:86,  m4:82,  m5:343, m6:280, t3:25,  t4:43,  t5:39,  t6:31},
-  {n:'慶次',     m3:82,  m4:86,  m5:76,  m6:81,  t3:28,  t4:30,  t5:27,  t6:25},
-  {n:'のん',     m3:18,  m4:43,  m5:32,  m6:56,  t3:16,  t4:23,  t5:26,  t6:33},
-  {n:'ルハン',   m3:0,   m4:11,  m5:21,  m6:19,  t3:null,t4:8,   t5:20,  t6:14,  tag3:'研修'},
-  {n:'澪夢',     m3:3,   m4:13,  m5:13,  m6:11,  t3:5,   t4:15,  t5:11,  t6:9},
+  {n:'はるぼー', m3:402, m4:539, m5:834, m6:445, m7:384, t3:60,  t4:61,  t5:53,  t6:32,  t7:26},
+  {n:'リト',     m3:266, m4:315, m5:230, m6:465, m7:170, t3:64,  t4:66,  t5:54,  t6:50,  t7:51},
+  {n:'凱莉',     m3:225, m4:204, m5:181, m6:172, m7:203, t3:52,  t4:55,  t5:60,  t6:57,  t7:70},
+  {n:'ひより',   m3:104, m4:290, m5:153, m6:189, m7:131, t3:42,  t4:66,  t5:56,  t6:56,  t7:17},
+  {n:'マナト',   m3:123, m4:144, m5:104, m6:102, m7:124, t3:32,  t4:47,  t5:35,  t6:28,  t7:42},
+  {n:'ショコラ', m3:86,  m4:82,  m5:343, m6:280, m7:78,  t3:25,  t4:43,  t5:39,  t6:31,  t7:30},
+  {n:'慶次',     m3:82,  m4:86,  m5:76,  m6:81,  m7:82,  t3:28,  t4:30,  t5:27,  t6:25,  t7:20},
+  {n:'のん',     m3:18,  m4:43,  m5:32,  m6:56,  m7:79,  t3:16,  t4:23,  t5:26,  t6:33,  t7:47},
+  {n:'ルハン',   m3:0,   m4:11,  m5:21,  m6:19,  m7:16,  t3:null,t4:8,   t5:20,  t6:14,  t7:8,   tag3:'研修'},
+  {n:'澪夢',     m3:3,   m4:13,  m5:13,  m6:11,  m7:176, t3:5,   t4:15,  t5:11,  t6:9,   t7:20},
   {n:'ツバサ',   m3:2,   m4:4,   m5:9,   m6:0,   t3:4,   t4:12,  t5:14,  t6:0,   tag6:'退店'},
-  {n:'夢斗',     m3:0,   m4:0,   m5:7,   m6:29,  t3:null,t4:0,   t5:11,  t6:12,  tag4:'新入'},
-  {n:'恋',       m3:null,m4:null,m5:6,   m6:100, t3:null,t4:null,t5:9,   t6:11,  tag5:'新入'},
+  {n:'夢斗',     m3:0,   m4:0,   m5:7,   m6:29,  m7:5,   t3:null,t4:0,   t5:11,  t6:12,  t7:8,   tag4:'新入'},
+  {n:'恋',       m3:null,m4:null,m5:6,   m6:100, m7:2,   t3:null,t4:null,t5:9,   t6:11,  t7:2,   tag5:'新入', tag7:'退店'},
   {n:'太聖',     m3:null,m4:null,m5:0,   m6:53,  t3:null,t4:null,t5:0,   t6:30,  tag6:'退店'},
-  {n:'百',       m3:0,   m4:6,   m5:0,   m6:6,   t3:0,   t4:2,   t5:0,   t6:4},
+  {n:'百',       m3:0,   m4:6,   m5:0,   m6:6,   m7:37,  t3:0,   t4:2,   t5:0,   t6:4,   t7:17},
   {n:'ウル',     m3:3,   m4:6,   m5:3,   m6:1,   t3:3,   t4:5,   t5:5,   t6:2,   tag6:'退店'},
-  {n:'アキ',     m3:1,   m4:0,   m5:0,   m6:0,   t3:2,   t4:0,   t5:0,   t6:0},
-  {n:'愛',       m3:0,   m4:0,   m5:0,   m6:0,   t3:0,   t4:0,   t5:0,   t6:0,   mgmt:true},
-  {n:'ラル',     m3:0,   m4:0,   m5:0,   m6:0,   t3:0,   t4:0,   t5:0,   t6:0,   mgmt:true},
+  {n:'アキ',     m3:1,   m4:0,   m5:0,   m6:0,   m7:0,   t3:2,   t4:0,   t5:0,   t6:0,   t7:0},
+  {n:'愛',       m3:0,   m4:0,   m5:0,   m6:0,   m7:0,   t3:0,   t4:0,   t5:0,   t6:0,   t7:0,   mgmt:true},
+  {n:'ラル',     m3:0,   m4:0,   m5:0,   m6:0,   m7:0,   t3:0,   t4:0,   t5:0,   t6:0,   t7:1,   mgmt:true},
   {n:'ライム',   m3:0,   m4:0,   m5:0,   m6:0,   t3:null,t4:null,t5:0,   t6:0,   mgmt:true},
-  {n:'龍雅',     m3:0,   m4:0,   m5:0,   m6:0,   t3:0,   t4:0,   t5:0,   t6:null, mgmt:true},
+  {n:'龍雅',     m3:0,   m4:0,   m5:0,   m6:0,   m7:0,   t3:0,   t4:0,   t5:0,   t6:null,t7:0,   mgmt:true},
   {n:'つくし',   m3:null,m4:null,m5:0,   m6:1,   t3:null,t4:null,t5:0,   t6:1,   tag6:'退店'},
+  {n:'一歩',     m7:150, t7:64,  tag7:'研修（CREATE本店より）'},
+  {n:'来夢',     m7:0,   t7:0,   tag7:'復帰'},
 ];
 
 // ============================================================
@@ -826,8 +835,8 @@ function renderGroup(key, prevKey) {
     data:{
       labels:tLabels,
       datasets:[
-        {label:'CREATE',data:MONTHS.map(m=>Math.round(MONTHLY[m].CREATE.sales/10000)),backgroundColor:'#c4974acc',borderColor:'#c4974a',borderWidth:1,stack:'s'},
-        {label:'PLUS',  data:MONTHS.map(m=>Math.round(MONTHLY[m].PLUS.sales/10000)),  backgroundColor:'#7aadaacc',borderColor:'#7aadaa',borderWidth:1,stack:'s'},
+        {label:'CREATE',data:MONTHS.map(m=>Math.round((MONTHLY[m].CREATE?.sales??0)/10000)),backgroundColor:'#c4974acc',borderColor:'#c4974a',borderWidth:1,stack:'s'},
+        {label:'PLUS',  data:MONTHS.map(m=>Math.round((MONTHLY[m].PLUS?.sales??0)/10000)),  backgroundColor:'#7aadaacc',borderColor:'#7aadaa',borderWidth:1,stack:'s'},
       ],
     },
     options:{
@@ -864,8 +873,8 @@ function renderGroup(key, prevKey) {
   // 総卓数・スタッフ数推移
   if(gVol) gVol.destroy();
   gVol=makeVolChart('gVolChart',[
-    {label:'CREATE',data:MONTHS.map(m=>MONTHLY[m].CREATE.totalV),backgroundColor:'#c4974acc',borderColor:'#c4974a',borderWidth:1,stack:'v'},
-    {label:'PLUS',  data:MONTHS.map(m=>MONTHLY[m].PLUS.totalV),  backgroundColor:'#7aadaacc',borderColor:'#7aadaa',borderWidth:1,stack:'v'},
+    {label:'CREATE',data:MONTHS.map(m=>(MONTHLY[m].CREATE?.totalV??0)),backgroundColor:'#c4974acc',borderColor:'#c4974a',borderWidth:1,stack:'v'},
+    {label:'PLUS',  data:MONTHS.map(m=>(MONTHLY[m].PLUS?.totalV??0)),  backgroundColor:'#7aadaacc',borderColor:'#7aadaa',borderWidth:1,stack:'v'},
   ],MONTHS.map(m=>{const n=parseInt(m.split('-')[1]);return staffCount(CREATE_INDIV,n)+staffCount(PLUS_INDIV,n);}));
 
   // Achievement cards
@@ -947,7 +956,7 @@ function renderGroup(key, prevKey) {
 // CREATE
 // ============================================================
 function renderCreate(key, prevKey) {
-  const c=MONTHLY[key].CREATE, p=prevKey?MONTHLY[prevKey].CREATE:null;
+  const c=MONTHLY[key].CREATE??null, p=prevKey?(MONTHLY[prevKey].CREATE??null):null;
   const mk=mKey(key);
 
   // KPIs
@@ -996,7 +1005,7 @@ function renderCreate(key, prevKey) {
   // 総卓数・スタッフ数推移
   if(cVol) cVol.destroy();
   cVol=makeVolChart('cVolChart',[
-    {label:'総卓数',data:MONTHS.map(m=>MONTHLY[m].CREATE.totalV),backgroundColor:'#c4974a55',borderColor:'#c4974a',borderWidth:1},
+    {label:'総卓数',data:MONTHS.map(m=>(MONTHLY[m].CREATE?.totalV??0)),backgroundColor:'#c4974a55',borderColor:'#c4974a',borderWidth:1},
   ],MONTHS.map(m=>staffCount(CREATE_INDIV,parseInt(m.split('-')[1]))));
 
   // Individual table — sorted by current month, dynamic columns (last 3 months)
@@ -1027,7 +1036,7 @@ function renderCreate(key, prevKey) {
 // PLUS
 // ============================================================
 function renderPlus(key, prevKey) {
-  const c=MONTHLY[key].PLUS, p=prevKey?MONTHLY[prevKey].PLUS:null;
+  const c=MONTHLY[key].PLUS??null, p=prevKey?(MONTHLY[prevKey].PLUS??null):null;
   const mk=mKey(key);
 
   // KPIs
@@ -1054,13 +1063,13 @@ function renderPlus(key, prevKey) {
       datasets:[
         {
           label:'売上',
-          data:MONTHS.map(m=>Math.round(MONTHLY[m].PLUS.sales/10000)),
+          data:MONTHS.map(m=>Math.round((MONTHLY[m].PLUS?.sales??0)/10000)),
           borderColor:'#7aadaa',backgroundColor:'#7aadaa18',
           borderWidth:2,fill:true,tension:.3,pointRadius:5,pointBackgroundColor:'#7aadaa',
         },
         {
           label:'目標',
-          data:MONTHS.map(m=>Math.round(MONTHLY[m].PLUS.target/10000)),
+          data:MONTHS.map(m=>Math.round((MONTHLY[m].PLUS?.target??0)/10000)),
           borderColor:'#444',backgroundColor:'transparent',
           borderWidth:1,borderDash:[5,5],pointRadius:0,tension:0,
         },
@@ -1079,7 +1088,7 @@ function renderPlus(key, prevKey) {
   // 総卓数・スタッフ数推移
   if(pVol) pVol.destroy();
   pVol=makeVolChart('pVolChart',[
-    {label:'総卓数',data:MONTHS.map(m=>MONTHLY[m].PLUS.totalV),backgroundColor:'#7aadaa55',borderColor:'#7aadaa',borderWidth:1},
+    {label:'総卓数',data:MONTHS.map(m=>(MONTHLY[m].PLUS?.totalV??0)),backgroundColor:'#7aadaa55',borderColor:'#7aadaa',borderWidth:1},
   ],MONTHS.map(m=>staffCount(PLUS_INDIV,parseInt(m.split('-')[1]))));
 
   // Individual
