@@ -298,6 +298,7 @@ body{
 <!-- ========== CREATE ========== -->
 <div id="tab-create" class="tab-content">
   <div class="kpi-row kpi-r4" id="createKpi"></div>
+  <div id="createAnalysis"></div>
   <div class="card">
     <div class="card-title">CREATE本店 — 14ヶ月売上推移（万円）</div>
     <div class="chart-wrap" style="height:200px"><canvas id="cTrendChart"></canvas></div>
@@ -319,6 +320,7 @@ body{
 <!-- ========== PLUS ========== -->
 <div id="tab-plus" class="tab-content">
   <div class="kpi-row kpi-r6" id="plusKpi"></div>
+  <div id="plusAnalysis"></div>
   <div class="card">
     <div class="card-title">CREATE PLUS — 月別推移（万円）</div>
     <div class="chart-wrap" style="height:190px"><canvas id="pTrendChart"></canvas></div>
@@ -425,12 +427,12 @@ const MONTHLY = {
     PLUS:   { target:25000000, sales:27300000, achRate:109, newC:69,  repeatRate:42.0, avgSpend:58331, uncRate:2.8, totalV:468 },
   },
   '2026-06': {
-    CREATE: { target:30000000, sales:26131200, achRate:87,  newC:72,  repeatC:24,  formalV:463, totalV:539 },
-    PLUS:   { target:25000000, sales:26562500, achRate:106, newC:67,  repeatRate:34.3, avgSpend:62062, uncRate:6.5, totalV:428 },
+    CREATE: { target:30000000, sales:26131200, achRate:87,  newC:72,  repeatC:24,  formalV:463, totalV:539, avgSpend:48481, uncRate:15.9, gsb:{g:22,s:0,b:2}, trial:18 },
+    PLUS:   { target:25000000, sales:26562500, achRate:106, newC:67,  repeatRate:34.3, avgSpend:62062, uncRate:6.5, totalV:428, gsb:{g:19,s:1,b:2}, trial:23 },
   },
   '2026-07': {
-    CREATE: { target:22000000, sales:22555700, achRate:103, newC:87, repeatC:18, formalV:355, totalV:442 },
-    PLUS:   { target:25000000, sales:21685500, achRate:87, newC:71, repeatRate:28.2, avgSpend:49173, uncRate:4.1, totalV:441 },
+    CREATE: { target:22000000, sales:22555700, achRate:103, newC:87, repeatC:18, formalV:355, totalV:442, avgSpend:51031, uncRate:11.6, gsb:{g:22,s:0,b:2}, trial:9 },
+    PLUS:   { target:25000000, sales:21685500, achRate:87, newC:71, repeatRate:28.2, avgSpend:49173, uncRate:4.1, totalV:441, gsb:{g:17,s:1,b:1}, trial:3 },
   },
 };
 
@@ -547,6 +549,27 @@ const MONTHLY_REPORTS = {
       staffIn:0, staffOut:0, promoted:['ひより → リーダー'],
     }
   }
+};
+
+// ============================================================
+// STORE ANALYSIS — 3軸診断（Kuro作成・店舗経営視点、ホスト個人向けではない）
+// 軸1：G/S/B構成比（粗利構造）／軸2：新規・R・正規・総卓（客層の質）／軸3：1体（採用ファネル）
+// ============================================================
+const STORE_ANALYSIS = {
+  '2026-07': {
+    create: {
+      verdict: '客層構造の問題（新規依存・既存客離脱）。人員・採用面は今のところ大きな懸念は薄いが、1体半減は要注視',
+      gsbNote: 'ランク構成比は不変（22/0/2→22/0/2）。一歩（G）の離脱と馨（G）の入店で頭数が相殺され、粗利構造への影響は中立',
+      mixNote: '新規+14.5%増加も正規-23.3%・リピート-25%減、総卓-18%。新規獲得では既存客の離脱を穴埋めできていない「漏れバケツ」状態。リピート率急落（31.6%→20.7%）と整合的',
+      trialNote: '1体 18→9（-50%）。一歩の抜けた穴を埋める新戦力の供給が細っている',
+    },
+    plus: {
+      verdict: '人員減（供給側）と採用ファネル崩壊が同時進行。客数自体は健全なため、単価を作れるホストの増員・育成が最優先課題',
+      gsbNote: 'Gランク（歩合率高い・集客力ある層）-2、Bランクも-1で総人員-3。需要変動ではなく供給（稼働できるホスト数）が細っている',
+      mixNote: '正規+3.6%・総卓+3%で客数はむしろ増加。にもかかわらず総売上-18.3%・客単価-20.8%（¥62,062→¥49,173）＝客は取れているのに一人当たり単価が崩壊',
+      trialNote: '1体 23→3（-87%）。人員減を埋める補充ルートが現状機能していない',
+    },
+  },
 };
 
 // EVENT CALENDAR (BDs, campaigns — month-level granularity)
@@ -910,11 +933,51 @@ function renderGroup(key, prevKey) {
 }
 
 // ============================================================
+// STORE ANALYSIS RENDER — 3軸診断カード（CREATE/PLUS共通）
+// ============================================================
+function renderStoreAnalysis(containerId, storeKey, key, prevKey) {
+  const el=document.getElementById(containerId);
+  const cur=MONTHLY[key]?.[storeKey], prev=prevKey?MONTHLY[prevKey]?.[storeKey]:null;
+  const a=STORE_ANALYSIS[key]?.[storeKey.toLowerCase()];
+  if(!a||!cur?.gsb||!prev?.gsb){
+    el.innerHTML=`<div class="card"><div class="card-title">経営分析 — 3軸診断</div><div style="font-size:11px;color:#444;padding:16px 0;text-align:center">この月の3軸分析データはまだありません</div></div>`;
+    return;
+  }
+  const d=(c2,p2)=>{const diff=c2-p2; if(diff===0) return '<span class="flat">±0</span>'; return diff>0?`<span class="up">+${diff}</span>`:`<span class="down">${diff}</span>`;};
+  el.innerHTML=`
+    <div class="card">
+      <div class="card-title">経営分析 — 3軸診断（Kuro）</div>
+      <div style="font-size:12px;color:#e0e0e0;line-height:1.7;padding:12px 14px;background:rgba(196,151,74,0.06);border:1px solid rgba(196,151,74,0.18);border-radius:6px;margin-bottom:16px">
+        <strong style="color:#c4974a">総合判定：</strong>${a.verdict}
+      </div>
+      <div class="g3">
+        <div style="padding:14px;background:#1e1e1e;border:1px solid #282828;border-radius:6px">
+          <div style="font-size:9px;color:#999;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">軸1 — 粗利構造（G/S/B）</div>
+          <div style="font-family:'EB Garamond',serif;font-size:15px;color:#e8e8e8;margin-bottom:8px">${prev.gsb.g}/${prev.gsb.s}/${prev.gsb.b} → ${cur.gsb.g}/${cur.gsb.s}/${cur.gsb.b}</div>
+          <div style="font-size:11px;color:#999;line-height:1.6">${a.gsbNote}</div>
+        </div>
+        <div style="padding:14px;background:#1e1e1e;border:1px solid #282828;border-radius:6px">
+          <div style="font-size:9px;color:#999;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">軸2 — 客層内訳（新規/正規/総卓）</div>
+          <div style="font-family:'EB Garamond',serif;font-size:13px;color:#e8e8e8;margin-bottom:8px">${prev.newC}/${prev.formalV}/${prev.totalV} → ${cur.newC}/${cur.formalV}/${cur.totalV}</div>
+          <div style="font-size:11px;color:#999;line-height:1.6">${a.mixNote}</div>
+        </div>
+        <div style="padding:14px;background:#1e1e1e;border:1px solid #282828;border-radius:6px">
+          <div style="font-size:9px;color:#999;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">軸3 — 採用ファネル（1体）</div>
+          <div style="font-family:'EB Garamond',serif;font-size:15px;color:#e8e8e8;margin-bottom:8px">${prev.trial} → ${cur.trial}人 ${d(cur.trial,prev.trial)}</div>
+          <div style="font-size:11px;color:#999;line-height:1.6">${a.trialNote}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ============================================================
 // CREATE
 // ============================================================
 function renderCreate(key, prevKey) {
   const c=MONTHLY[key].CREATE??null, p=prevKey?(MONTHLY[prevKey].CREATE??null):null;
   const mk=mKey(key);
+
+  renderStoreAnalysis('createAnalysis','CREATE',key,prevKey);
 
   // KPIs
   document.getElementById('createKpi').innerHTML=[
@@ -995,6 +1058,8 @@ function renderCreate(key, prevKey) {
 function renderPlus(key, prevKey) {
   const c=MONTHLY[key].PLUS??null, p=prevKey?(MONTHLY[prevKey].PLUS??null):null;
   const mk=mKey(key);
+
+  renderStoreAnalysis('plusAnalysis','PLUS',key,prevKey);
 
   // KPIs
   document.getElementById('plusKpi').innerHTML=[
