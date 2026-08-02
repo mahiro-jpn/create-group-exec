@@ -198,7 +198,6 @@ body{
 .tgt-table tr.hl td{background:rgba(196,151,74,0.04);}
 .tgt-table tr.tot td{color:#e0e0e0;border-top:1px solid #2a2a2a;font-weight:400;}
 
-.intel-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
 .rep-g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 
 #splash{position:fixed;inset:0;z-index:999;background:#171717;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;animation:splashOut .45s ease .8s forwards;}
@@ -220,7 +219,6 @@ body{
 @media(max-width:768px){
   .kpi-r4,.kpi-r5,.kpi-r6{grid-template-columns:repeat(2,1fr);}
   .g2,.g3,.g2h{grid-template-columns:1fr;}
-  .intel-grid{grid-template-columns:1fr;}
   .rep-g2{grid-template-columns:1fr;}
   .tab-content{padding:16px;}
   .site-header{padding:12px 16px;}
@@ -667,13 +665,10 @@ function switchTab(tab, el) {
 function generateIntel(key, prevKey) {
   const monthIdx=MONTHS.indexOf(key);
   const cur=MONTHLY[key];
-  const signals=[],actions=[];
-  const createRisers=[],plusRisers=[];
-  const createFallers=[],plusFallers=[];
-  const createZeros=[],plusZeros=[];
+  const signals=[];
 
   function gv(m,idx){ return (m[mKey(MONTHS[idx])]??0); }
-  function scanStore(arr, label, isCreate) {
+  function scanStore(arr, label) {
     const localRisers=[];
     arr.forEach(m=>{
       const v=gv(m,monthIdx);
@@ -684,25 +679,20 @@ function generateIntel(key, prevKey) {
          &&m[mKey(MONTHS[monthIdx-1])]!=null
          &&m[mKey(MONTHS[monthIdx-2])]!=null){
         signals.push({type:'critical',text:`${m.n}（${label}）`,detail:'3ヶ月連続売上0万 — 在籍継続の判断が必要'});
-        if(isCreate) createZeros.push(m.n); else plusZeros.push(m.n);
       } else if(pv!==null&&pv>=30&&v<pv*0.7){
         const p=Math.round((v-pv)/pv*100);
         signals.push({type:'warning',text:`${m.n}（${label}）急落 ${p}%`,detail:`${pv}万 → ${v}万 — 原因確認が必要`});
-        if(isCreate) createFallers.push(m.n); else plusFallers.push(m.n);
       }
       if(pv!==null&&pv>0&&v>=pv*1.5&&v>=50){
         const p=Math.round((v-pv)/pv*100);
-        localRisers.push({type:'positive',text:`${m.n}（${label}）急成長 +${p}%`,detail:`${pv}万 → ${v}万`,pct:p,isCreate,n:m.n});
+        localRisers.push({type:'positive',text:`${m.n}（${label}）急成長 +${p}%`,detail:`${pv}万 → ${v}万`,pct:p});
       }
     });
     return localRisers;
   }
-  const allRisers=[...scanStore(CREATE_INDIV,'本店',true),...scanStore(PLUS_INDIV,'PLUS',false)];
+  const allRisers=[...scanStore(CREATE_INDIV,'本店'),...scanStore(PLUS_INDIV,'PLUS')];
   allRisers.sort((a,b)=>b.pct-a.pct);
-  allRisers.slice(0,3).forEach(s=>{
-    signals.push(s);
-    if(s.isCreate) createRisers.push(s.n); else plusRisers.push(s.n);
-  });
+  allRisers.slice(0,3).forEach(s=>signals.push(s));
 
   const hA=cur.CREATE.achRate, pA=cur.PLUS.achRate;
   if(hA>=100) signals.push({type:'positive',text:`本店 目標達成 ${hA}%`,detail:fmt(cur.CREATE.target)+' 突破'});
@@ -725,26 +715,11 @@ function generateIntel(key, prevKey) {
     });
   }
 
-  if(createRisers.length) actions.push({who:'こうき',  text:`${createRisers.join('・')} を今週中に個別面談 — 成功要因を言語化させ横展開のネタにする`});
-  if(plusRisers.length)   actions.push({who:'ショコラ',text:`${plusRisers.join('・')} を今週中に個別面談 — 成功要因を言語化させ横展開のネタにする`});
-  if(createFallers.length) actions.push({who:'こうき', text:`${createFallers.join('・')} の急落原因を今月中に把握 — プライベートか指名離れかで対処が変わる`});
-  if(plusFallers.length)   actions.push({who:'ショコラ',text:`${plusFallers.join('・')} の急落原因を今月中に把握 — プライベートか指名離れかで対処が変わる`});
-  if(createZeros.length)   actions.push({who:'こうき', text:`${createZeros.join('・')} — 在籍意思の確認とリソース配分の見直しを`});
-  if(plusZeros.length)     actions.push({who:'ショコラ',text:`${plusZeros.join('・')} — 在籍意思の確認とリソース配分の見直しを`});
-
-  if(cur.PLUS.repeatRate>=40)
-    actions.push({who:'キイチ',text:`PLUSのリピート率${cur.PLUS.repeatRate}%・未収率${cur.PLUS.uncRate}%は固定客育成フェーズのシグナル — 新規SNS集客より既存VIPの深耕（LINE・アフターフォロー）に投資重心を移す提言をエソラへ`});
-
-  const gTotal=Math.round((cur.CREATE.sales+cur.PLUS.sales)/10000);
-  const annual=gTotal*12;
-  const gap=Math.round((100000-annual)/10000*10)/10;
-  if(gap>0) actions.push({who:'キイチ',text:`今月ペース月${gTotal}万 → 年換算${(annual/10000).toFixed(1)}億。10億目標まで年間約${gap}億のギャップ — 早期覚醒型新人の採用強化が最短ルート`});
-
-  return {signals,actions};
+  return {signals};
 }
 
 function renderIntel(key,prevKey){
-  const {signals,actions}=generateIntel(key,prevKey);
+  const {signals}=generateIntel(key,prevKey);
   const el=document.getElementById('intelSection');
   const iMap={critical:'⚑',warning:'▲',positive:'◆'};
   const cMap={critical:'#c76b6b',warning:'#d4a74a',positive:'#6db86d'};
@@ -760,29 +735,11 @@ function renderIntel(key,prevKey){
       </div>
     </div>`).join(''):'<div style="font-size:11px;color:#444;padding:4px 0">検出なし</div>';
 
-  const aHtml=actions.length?actions.map(a=>{
-    const isK=a.who==='キイチ', isSho=a.who==='ショコラ';
-    const tc=isK?'#c4974a':isSho?'#7aadaa':'#d4845c';
-    const tb=isK?'#2a2010':isSho?'#0a1a18':'#2a1800';
-    return `<div style="padding:10px 12px;background:#1e1e1e;border:1px solid #2e2e2e;border-left:2px solid ${tc};border-radius:4px;margin-bottom:6px">
-      <div style="display:inline-block;font-size:9px;color:${tc};background:${tb};border:1px solid ${tc}44;border-radius:3px;padding:1px 6px;letter-spacing:.08em;margin-bottom:5px">${a.who}</div>
-      <div style="font-size:12px;color:#e8e8e8;line-height:1.65">${a.text}</div>
-    </div>`;
-  }).join(''):'<div style="font-size:11px;color:#444;padding:4px 0">なし</div>';
-
   el.innerHTML=`
     <div class="card" style="margin-bottom:12px;">
-      <div class="card-title">INTEL — 自動シグナル＆アクション</div>
-      <div class="intel-grid">
-        <div>
-          <div style="font-size:9px;color:#fff;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">SIGNALS</div>
-          ${sHtml}
-        </div>
-        <div>
-          <div style="font-size:9px;color:#fff;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">ACTION ITEMS</div>
-          ${aHtml}
-        </div>
-      </div>
+      <div class="card-title">INTEL — 自動シグナル</div>
+      <div style="font-size:9px;color:#fff;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">SIGNALS</div>
+      ${sHtml}
     </div>`;
 }
 
