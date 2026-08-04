@@ -538,6 +538,50 @@ const MONTHLY_REPORTS = {
       nextEvents: ['リーダー日次面談', '個人課題制導入'],
       staffIn:0, staffOut:0, promoted:['ひより → リーダー'],
     }
+  },
+  '2026-07': {
+    create: {
+      manager: 'コウキ',
+      theme: '新規獲得強化・イベント運営',
+      good: [
+        '新しい数字を獲得できたスタッフが増加（BD・目標を明確に伝え当日の結果に結びつけられた）',
+        '新規増加（ガイハンを多く取れていた）',
+        'ラストが固定化されず、狙っているキャスト・お客様が増えた',
+      ],
+      issues: [
+        '全体の数字は増えていない（お客様との関係性・満足度の課題）',
+        '入店した子の数字を上げる仕組み・管理が不足',
+        '新規は増えたがリピート率が下がった',
+      ],
+      events: [
+        {name:'幹部VSオールスタッフ（卓数勝負）', result:''},
+        {name:'七夕祭り', result:'中間のイベント・サービスがあれば良かった（反省点）'},
+        {name:'十座バースデー', result:'数字は◯だが飲酒量が多く満足度が低下'},
+        {name:'ルイバースデー', result:'目標達成'},
+      ],
+      spotlight: [{n:'十座', note:'注目スタッフ（伸びた・気になる）'}],
+      concerns: [],
+      nextEvents: ['幹部VSスタッフ新規勝負', '男祭り', 'ウタバースデー', 'ルカバースデー', 'リョウトバースデー'],
+      nextTheme: '土台再確認をし、2ヶ月間で幹部育成と人事を増やす',
+      staffIn:0, staffOut:0, promoted:[],
+    },
+    plus: {
+      manager: 'ショコラ',
+      theme: 'リーダー陣の教育・意識向上',
+      good: [
+        'リーダー陣の教育を通じ意識を向上させることができた',
+        'その結果チームメンバーの数字上昇が見られた',
+      ],
+      issues: [],
+      events: [
+        {name:'4チーム新規勝負', result:'リーダー陣の意識向上に繋げられた'},
+      ],
+      spotlight: [{n:'のん・れむ', note:'双方数字向上。締めた後の怠慢・意識低下を避けるよう注力'}],
+      concerns: [],
+      nextEvents: ['新しい賞金制度', 'まなと・リューガ・ゆめとバースデー', '15日合同イベント'],
+      nextTheme: '引き続き幹部育成・人間力の向上',
+      staffIn:0, staffOut:1, promoted:['ひより'],
+    }
   }
 };
 
@@ -1210,6 +1254,7 @@ function renderReport(key) {
       <div class="rep-g2" style="margin-top:4px">
         <div>
           <div style="font-size:9px;color:#555;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">▼ 来月の施策</div>
+          ${d.nextTheme?`<div style="font-size:12px;color:#c4974a;padding:3px 0 6px">${d.nextTheme}</div>`:''}
           ${(d.nextEvents||[]).map(n=>`<div style="font-size:12px;color:#777;padding:3px 0">→ ${n}</div>`).join('')||'<div style="font-size:11px;color:#444">—</div>'}
         </div>
         <div>
