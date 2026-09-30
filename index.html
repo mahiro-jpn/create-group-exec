@@ -857,17 +857,18 @@ function generateIntel(key, prevKey) {
   const cur=MONTHLY[key];
   const signals=[];
 
-  function gv(m,idx){ return (m[mKey(MONTHS[idx])]??0); }
+  // 生値を返す。null/undefined ＝ その月この店の集計に載っていない（他店へ研修・移籍・退店等）。
+  // 「売上0」とは意味が違うので、0に丸めて急落判定してはいけない。
+  function gv(m,idx){ const x=m[mKey(MONTHS[idx])]; return x==null?null:x; }
   function scanStore(arr, label) {
     const localRisers=[];
     arr.forEach(m=>{
       const v=gv(m,monthIdx);
       const pv=monthIdx>0?gv(m,monthIdx-1):null;
       const pp=monthIdx>1?gv(m,monthIdx-2):null;
-      if(!m.mgmt&&monthIdx>=2&&v===0&&pv===0&&pp===0
-         &&m[mKey(MONTHS[monthIdx])]!=null
-         &&m[mKey(MONTHS[monthIdx-1])]!=null
-         &&m[mKey(MONTHS[monthIdx-2])]!=null){
+      // 当月この店に在籍していない人は判定対象外（Revelo・エイトの「106万→0万 急落」型の誤検知を防ぐ）
+      if(v===null) return;
+      if(!m.mgmt&&monthIdx>=2&&v===0&&pv===0&&pp===0){
         signals.push({type:'critical',text:`${m.n}（${label}）`,detail:'3ヶ月連続売上0万 — 在籍継続の判断が必要'});
       } else if(pv!==null&&pv>=30&&v<pv*0.7){
         const p=Math.round((v-pv)/pv*100);
@@ -1213,7 +1214,7 @@ function renderCreate(key, prevKey) {
       <th style="color:#c4974a">卓数</th>
     </tr></thead>
     <tbody>${sorted.map(d=>{
-      const tagHtml=recentMonths.map(m=>{const tn=parseInt(m.split('-')[1]);const t=d['tag'+tn];if(!t)return '';const cls=t==='退店'?'badge-exit':t==='移籍'?'badge-move':'badge-new';return`<span class="badge ${cls}">${t}</span>`;}).join('');
+      const tagHtml=recentMonths.map(m=>{const tn=parseInt(m.split('-')[1]);const t=d['tag'+tn];if(!t)return '';const cls=/退店/.test(t)?'badge-exit':/(移籍|復帰|研修)/.test(t)?'badge-move':'badge-new';return`<span class="badge ${cls}">${t}</span>`;}).join('');
       const mgmtBadge=d.mgmt?`<span class="badge badge-move">運営</span>`:'';
       return`<tr>
         <td>${d.n}${mgmtBadge}${tagHtml}</td>
@@ -1299,7 +1300,7 @@ function renderPlus(key, prevKey) {
     const tags=[];
     [d.tag3,d.tag4,d.tag5,d.tag6].forEach(t=>{
       if(!t) return;
-      const cls=t==='退店'?'badge-exit':t==='移籍'?'badge-move':'badge-new';
+      const cls=/退店/.test(t)?'badge-exit':/(移籍|復帰|研修)/.test(t)?'badge-move':'badge-new';
       tags.push(`<span class="badge ${cls}">${t}</span>`);
     });
     return tags.join('');
