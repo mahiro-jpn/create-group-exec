@@ -300,7 +300,7 @@ body{
 
 <!-- ========== CREATE ========== -->
 <div id="tab-create" class="tab-content">
-  <div class="kpi-row kpi-r5" id="createKpi"></div>
+  <div class="kpi-row kpi-r4" id="createKpi"></div>
   <div id="createAnalysis"></div>
   <div class="card">
     <div class="card-title">CREATE本店 — 売上推移（万円）</div>
@@ -326,7 +326,7 @@ body{
 
 <!-- ========== PLUS ========== -->
 <div id="tab-plus" class="tab-content">
-  <div class="kpi-row kpi-r7" id="plusKpi"></div>
+  <div class="kpi-row kpi-r4" id="plusKpi"></div>
   <div id="plusAnalysis"></div>
   <div class="card">
     <div class="card-title">CREATE PLUS — 月別推移（万円）</div>
@@ -438,19 +438,19 @@ const MONTHLY = {
     PLUS:   { target:25000000, sales:27300000, achRate:109, newC:69,  repeatRate:42.0, avgSpend:58331, uncRate:2.8, totalV:468 },
   },
   '2026-06': {
-    CREATE: { target:30000000, sales:26131200, achRate:87,  newC:72,  repeatC:24,  formalV:463, totalV:539, avgSpend:48481, uncRate:15.9, gsb:{g:22,s:0,b:2}, trial:18, custC:76 },
+    CREATE: { target:30000000, sales:26131200, achRate:87,  newC:72,  repeatC:24,  formalV:463, totalV:539, avgSpend:48481, uncRate:15.9, gsb:{g:22,s:0,b:2}, trial:18, custC:76 , repeatRate:31.6},
     PLUS:   { target:25000000, sales:26562500, achRate:106, newC:67,  repeatRate:34.3, formalV:338, avgSpend:62062, uncRate:6.5, totalV:428, gsb:{g:19,s:1,b:2}, trial:23 },
   },
   '2026-07': {
-    CREATE: { target:22000000, sales:22555700, achRate:103, newC:87, repeatC:18, formalV:355, totalV:442, avgSpend:51031, uncRate:11.6, gsb:{g:22,s:0,b:2}, trial:9, custC:74 },
+    CREATE: { target:22000000, sales:22555700, achRate:103, newC:87, repeatC:18, formalV:355, totalV:442, avgSpend:51031, uncRate:11.6, gsb:{g:22,s:0,b:2}, trial:9, custC:74 , repeatRate:20.7},
     PLUS:   { target:25000000, sales:21685500, achRate:87, newC:71, repeatRate:28.2, formalV:350, avgSpend:49173, uncRate:4.1, totalV:441, gsb:{g:17,s:1,b:1}, trial:3, custC:82 },
   },
   '2026-08': {
-    CREATE: { target:30500000, sales:27198300, achRate:89, newC:113, repeatC:28, formalV:365, totalV:478, avgSpend:56900, uncRate:16.3, gsb:{g:21,s:0,b:2}, trial:16, custC:73 },
+    CREATE: { target:30500000, sales:27198300, achRate:89, newC:113, repeatC:28, formalV:365, totalV:478, avgSpend:56900, uncRate:16.3, gsb:{g:21,s:0,b:2}, trial:16, custC:73 , repeatRate:24.8},
     PLUS:   { target:25000000, sales:22662000, achRate:91, newC:77, repeatRate:27.3, formalV:395, avgSpend:45968, uncRate:9.2, totalV:493, gsb:{g:17,s:1,b:0}, trial:8, custC:77 },
   },
   '2026-09': {
-    CREATE: { target:26410000, sales:16571000, achRate:63, newC:96, repeatC:16, formalV:248, totalV:344, avgSpend:48172, uncRate:5.6, gsb:{g:21,s:0,b:3}, trial:4, custC:65 },
+    CREATE: { target:26410000, sales:16571000, achRate:63, newC:96, repeatC:16, formalV:248, totalV:344, avgSpend:48172, uncRate:5.6, gsb:{g:21,s:0,b:3}, trial:4, custC:65 , repeatRate:16.7},
     PLUS:   { target:25000000, sales:28702500, achRate:115, newC:73, repeatRate:19.2, formalV:412, avgSpend:57520, uncRate:6.5, totalV:499, gsb:{g:17,s:1,b:0}, trial:12, custC:76 },
   },
 };
@@ -1196,6 +1196,26 @@ function renderGroup(key, prevKey) {
 // ============================================================
 // STORE ANALYSIS RENDER — 3軸診断カード（CREATE/PLUS共通）
 // ============================================================
+// CREATE / PLUS で共通のKPIカード（8項目）。データが無い月は「—」で出す
+function storeKpiHtml(c, p){
+  const mom=(k,inv)=>(p&&c[k]!=null&&p[k]!=null)?fmtMoM(c[k],p[k],inv):'';
+  return [
+    {l:'当月売上',   v:fmt(c.sales),                                              ch:p?fmtMoM(c.sales,p.sales):''},
+    {l:'月間目標',   v:fmt(c.target),                                             ch:''},
+    {l:'達成率',     v:c.achRate,                       u:'%',                    ch:'', good:c.achRate>=100},
+    {l:'総卓数',     v:c.totalV??'—',                   u:c.totalV!=null?'卓':'',  ch:mom('totalV')},
+    {l:'客単価',     v:c.avgSpend!=null?'¥'+c.avgSpend.toLocaleString():'—',      ch:mom('avgSpend')},
+    {l:'リピート率', v:c.repeatRate??'—',               u:c.repeatRate!=null?'%':'', ch:mom('repeatRate')},
+    {l:'未収率',     v:c.uncRate??'—',                  u:c.uncRate!=null?'%':'',  ch:mom('uncRate',true)},
+    {l:'顧客数',     v:c.custC??'—',                    u:c.custC!=null?'名':'',   ch:mom('custC')},
+  ].map(k=>`
+    <div class="kpi">
+      <div class="kpi-label">${k.l}</div>
+      <div class="kpi-value${k.good?' good':''}">${k.v}<span class="kpi-unit">${k.u||''}</span></div>
+      <div class="kpi-change">${k.ch}</div>
+    </div>`).join('');
+}
+
 function renderStoreAnalysis(containerId, storeKey, key, prevKey) {
   const el=document.getElementById(containerId);
   const cur=MONTHLY[key]?.[storeKey], prev=prevKey?MONTHLY[prevKey]?.[storeKey]:null;
@@ -1241,18 +1261,7 @@ function renderCreate(key, prevKey) {
   renderStoreAnalysis('createAnalysis','CREATE',key,prevKey);
 
   // KPIs
-  document.getElementById('createKpi').innerHTML=[
-    {l:'当月売上',  v:fmt(c.sales),    ch:p?fmtMoM(c.sales,p.sales):''},
-    {l:'月間目標',  v:fmt(c.target),   ch:''},
-    {l:'達成率',    v:c.achRate, u:'%',ch:'', good:c.achRate>=100},
-    {l:'総卓数',    v:c.totalV,  u:'卓',ch:p?fmtMoM(c.totalV,p.totalV):''},
-    {l:'顧客数',    v:c.custC??'—', u:c.custC!=null?'名':'', ch:(p&&c.custC!=null&&p.custC!=null)?fmtMoM(c.custC,p.custC):''},
-  ].map(k=>`
-    <div class="kpi">
-      <div class="kpi-label">${k.l}</div>
-      <div class="kpi-value${k.good?' good':''}">${k.v}<span class="kpi-unit">${k.u||''}</span></div>
-      <div class="kpi-change">${k.ch}</div>
-    </div>`).join('');
+  document.getElementById('createKpi').innerHTML=storeKpiHtml(c,p);
 
   // 売上推移（MONTHLYが持つ検証済み月のみ）
   if(cTrend) cTrend.destroy();
@@ -1328,20 +1337,7 @@ function renderPlus(key, prevKey) {
   renderStoreAnalysis('plusAnalysis','PLUS',key,prevKey);
 
   // KPIs
-  document.getElementById('plusKpi').innerHTML=[
-    {l:'当月売上',   v:fmt(c.sales),       ch:p?fmtMoM(c.sales,p.sales):''},
-    {l:'月間目標',   v:fmt(c.target),      ch:''},
-    {l:'達成率',     v:c.achRate, u:'%',   ch:'', good:c.achRate>=100},
-    {l:'客単価',     v:'¥'+c.avgSpend.toLocaleString(), ch:p?fmtMoM(c.avgSpend,p.avgSpend):''},
-    {l:'リピート率', v:c.repeatRate, u:'%',ch:p?fmtMoM(c.repeatRate,p.repeatRate):''},
-    {l:'未収率',     v:c.uncRate,    u:'%',ch:p?fmtMoM(c.uncRate,p.uncRate,true):''},
-    {l:'顧客数',     v:c.custC??'—', u:c.custC!=null?'名':'', ch:(p&&c.custC!=null&&p.custC!=null)?fmtMoM(c.custC,p.custC):''},
-  ].map(k=>`
-    <div class="kpi">
-      <div class="kpi-label">${k.l}</div>
-      <div class="kpi-value${k.good?' good':''}">${k.v}<span class="kpi-unit">${k.u||''}</span></div>
-      <div class="kpi-change">${k.ch}</div>
-    </div>`).join('');
+  document.getElementById('plusKpi').innerHTML=storeKpiHtml(c,p);
 
   // Trend chart
   if(pTrend) pTrend.destroy();
