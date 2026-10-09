@@ -109,6 +109,7 @@ body{
 .kpi-change{font-size:10px;margin-top:5px;min-height:14px;}
 .up{color:#6db86d;} .down{color:#c76b6b;} .flat{color:#999;}
 .kpi-value.good{color:#6db86d;}
+.kpi-value.bad{color:#c76b6b;}
 
 .g2{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
@@ -203,6 +204,84 @@ body{
 
 .rep-g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 
+/* ---- 判定・台帳・先行指標ボード（2026-10 追加） ---- */
+.verdict-bar{
+  display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;
+  padding:16px 18px;margin-bottom:12px;border-radius:8px;
+  background:linear-gradient(140deg,rgba(196,151,74,0.10),rgba(196,151,74,0.02));
+  border:1px solid rgba(196,151,74,0.28);
+}
+.verdict-text{flex:1 1 320px;font-size:13px;line-height:1.75;color:#eee;}
+.verdict-states{display:flex;gap:8px;flex-shrink:0;}
+.state-chip{
+  display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;
+  min-width:86px;padding:8px 12px;border-radius:6px;border:1px solid;
+}
+.state-chip .sc-store{font-size:9px;letter-spacing:.12em;text-transform:uppercase;}
+.state-chip .sc-state{font-family:'EB Garamond',serif;font-size:14px;letter-spacing:.06em;}
+.sc-red{background:rgba(199,107,107,0.10);border-color:rgba(199,107,107,0.4);color:#c76b6b;}
+.sc-amber{background:rgba(212,167,74,0.10);border-color:rgba(212,167,74,0.4);color:#d4a74a;}
+.sc-green{background:rgba(109,184,109,0.10);border-color:rgba(109,184,109,0.4);color:#6db86d;}
+
+.ledger{width:100%;border-collapse:collapse;font-size:12px;}
+.ledger th{
+  font-size:9px;color:#aaa;letter-spacing:.09em;text-transform:uppercase;
+  padding:8px 10px;border-bottom:1px solid #222;font-weight:300;text-align:left;
+}
+.ledger td{padding:11px 10px;border-bottom:1px solid #1f1f1f;color:#ccc;vertical-align:top;line-height:1.6;}
+.ledger tr:last-child td{border-bottom:none;}
+.ledger .lg-to{color:#c4974a;white-space:nowrap;}
+.ledger .lg-metric{font-size:10px;color:#8e8e8e;font-family:'EB Garamond',serif;white-space:nowrap;}
+.lg-result{display:inline-block;font-size:10px;padding:3px 9px;border-radius:4px;letter-spacing:.06em;white-space:nowrap;}
+.lg-hit{background:rgba(109,184,109,0.12);color:#6db86d;border:1px solid rgba(109,184,109,0.3);}
+.lg-miss{background:rgba(199,107,107,0.12);color:#c76b6b;border:1px solid rgba(199,107,107,0.3);}
+.lg-wait{background:rgba(255,255,255,0.04);color:#999;border:1px solid #2e2e2e;}
+.lg-kind{display:inline-block;font-size:8px;padding:2px 6px;border-radius:3px;letter-spacing:.08em;margin-right:6px;vertical-align:middle;}
+.lg-kind-call{background:rgba(122,173,170,0.12);color:#7aadaa;border:1px solid rgba(122,173,170,0.3);}
+.lg-kind-risk{background:rgba(212,167,74,0.12);color:#d4a74a;border:1px solid rgba(212,167,74,0.3);}
+.lg-retro{font-size:8px;color:#777;letter-spacing:.06em;margin-left:6px;}
+.lg-note{font-size:10px;color:#8e8e8e;margin-top:4px;line-height:1.55;}
+
+.lead-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.lead-cell{padding:13px 14px;background:#1e1e1e;border:1px solid #282828;border-radius:6px;border-left:2px solid #2e2e2e;}
+.lead-cell.warn{border-left-color:#d4a74a;}
+.lead-cell.crit{border-left-color:#c76b6b;}
+.lead-cell.good{border-left-color:#6db86d;}
+.lead-label{font-size:9px;color:#999;letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px;}
+.lead-val{font-family:'EB Garamond',serif;font-size:21px;color:#e8e8e8;line-height:1;}
+.lead-val .lv-unit{font-size:10px;color:#888;margin-left:3px;}
+.lead-seq{font-size:10px;color:#888;margin-top:7px;letter-spacing:.04em;font-family:'EB Garamond',serif;}
+.lead-judge{font-size:10px;margin-top:5px;line-height:1.5;}
+.store-head{font-size:9px;color:#c4974a;letter-spacing:.14em;text-transform:uppercase;margin:4px 0 9px;}
+.store-head.plus{color:#7aadaa;}
+
+.more-btn{
+  display:block;width:100%;margin-top:12px;padding:9px 0;
+  background:rgba(255,255,255,0.03);border:1px solid #2a2a2a;border-radius:6px;
+  color:#999;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  font-family:'Noto Sans JP',sans-serif;font-weight:300;cursor:pointer;transition:all .2s;
+}
+.more-btn:hover{border-color:rgba(196,151,74,0.4);color:#c4974a;}
+.target-badge{
+  display:inline-block;font-size:8px;padding:2px 6px;border-radius:3px;margin-left:6px;
+  background:rgba(212,167,74,0.12);color:#d4a74a;border:1px solid rgba(212,167,74,0.3);
+  letter-spacing:.04em;vertical-align:middle;
+}
+.data-asof{font-size:9px;color:#777;letter-spacing:.1em;margin-top:4px;}
+@media(max-width:768px){
+  .lead-grid{grid-template-columns:repeat(2,1fr);}
+  .verdict-states{width:100%;}
+  .state-chip{flex:1;}
+  /* 台帳：列が5つだと潰れるので1件1ブロックに積み替える */
+  .ledger,.ledger tbody,.ledger tr,.ledger td{display:block;width:100%;}
+  .ledger thead{display:none;}
+  .ledger tr{padding:13px 2px;border-bottom:1px solid #1f1f1f;}
+  .ledger td{padding:3px 0;border:none;}
+  .ledger td:nth-child(1),.ledger td:nth-child(2){display:inline-block;width:auto;}
+  .ledger td:nth-child(4){display:none;}
+  .ledger td:last-child{text-align:left!important;margin-top:7px;}
+}
+
 #splash{position:fixed;inset:0;z-index:999;background:#171717;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;animation:splashOut .45s ease .8s forwards;}
 .splash-logo{font-family:'EB Garamond',serif;font-size:30px;color:#c4974a;letter-spacing:.22em;text-shadow:0 0 40px rgba(196,151,74,0.35);animation:splashIn .55s ease both;}
 .splash-sub{font-size:9px;color:#666;letter-spacing:.34em;margin-top:10px;text-transform:uppercase;animation:splashIn .55s ease .12s both;}
@@ -240,6 +319,7 @@ body{
   <div>
     <div class="logo">CREATE GROUP</div>
     <div class="logo-sub">Executive Intelligence Dashboard</div>
+    <div class="data-asof" id="dataAsOf"></div>
   </div>
   <div id="monthNav" class="month-nav">
     <button class="nav-btn" id="navPrev" onclick="navigate(-1)">&#8249;</button>
@@ -258,8 +338,11 @@ body{
 
 <!-- ========== GROUP ========== -->
 <div id="tab-group" class="tab-content active">
-  <div id="intelSection"></div>
+  <div id="verdictSection"></div>
   <div class="kpi-row kpi-r5" id="groupKpi"></div>
+  <div id="leadSection"></div>
+  <div id="ledgerSection"></div>
+  <div id="intelSection"></div>
   <div class="g2">
     <div class="card">
       <div class="card-title">グループ月別売上推移（万円）</div>
@@ -291,16 +374,19 @@ body{
   <div class="card">
     <div class="card-title">GROUP 個人売上ランキング — 当月</div>
     <table class="dtable" id="groupRankTable"></table>
+    <button class="more-btn" id="groupRankMore" onclick="toggleRows('groupRankTable',this)"></button>
   </div>
   <div class="card">
     <div class="card-title">GROUP 個人総卓数ランキング — 当月</div>
     <table class="dtable" id="groupVolRankTable"></table>
+    <button class="more-btn" id="groupVolRankMore" onclick="toggleRows('groupVolRankTable',this)"></button>
   </div>
 </div>
 
 <!-- ========== CREATE ========== -->
 <div id="tab-create" class="tab-content">
   <div class="kpi-row kpi-r4" id="createKpi"></div>
+  <div id="createIntel"></div>
   <div id="createAnalysis"></div>
   <div class="card">
     <div class="card-title">CREATE本店 — 売上推移（万円）</div>
@@ -327,6 +413,7 @@ body{
 <!-- ========== PLUS ========== -->
 <div id="tab-plus" class="tab-content">
   <div class="kpi-row kpi-r4" id="plusKpi"></div>
+  <div id="plusIntel"></div>
   <div id="plusAnalysis"></div>
   <div class="card">
     <div class="card-title">CREATE PLUS — 月別推移（万円）</div>
@@ -364,7 +451,9 @@ body{
       <div class="fin-row"><span class="fin-label">買収残債合計</span><span class="fin-val">3,214<span class="fin-unit">万円</span></span></div>
       <div class="fin-row"><span class="fin-label">月次返済額</span><span class="fin-val">460<span class="fin-unit">万円</span></span></div>
       <div class="fin-row"><span class="fin-label" id="finSalesLabel">最新月グループ売上</span><span class="fin-val" id="finSalesVal">—</span></div>
-      <div class="fin-row"><span class="fin-label">年間換算ペース</span><span class="fin-val" id="finAnnualVal">—</span></div>
+      <div class="fin-row"><span class="fin-label">年間換算ペース（直近3ヶ月平均）</span><span class="fin-val" id="finAnnualVal">—</span></div>
+      <div class="fin-row"><span class="fin-label">必要月商（年商10億 ÷ 12）</span><span class="fin-val" id="finNeedVal">—</span></div>
+      <div class="fin-row"><span class="fin-label">そこまでの距離</span><span class="fin-val" id="finGapVal">—</span></div>
       <div class="fin-row"><span class="fin-label">10億達成目標</span><span class="fin-val" style="color:#6db86d">2027年</span></div>
     </div>
     <div class="card">
@@ -455,6 +544,9 @@ const MONTHLY = {
   },
 };
 
+// 3〜5月のチーム別実績。6月以降は定例会資料にチーム区分が無く更新が止まっている。
+// これを使っていたINTELの「3ヶ月連続下落」ルールは発火しえないため2026-10に撤去済み。
+// 現在どこからも参照していない（当時の記録として保持）。
 const CREATE_TEAMS = {
   '2026-03': [{n:'TOPチーム',s:6850000,r:86},{n:'CREATEチーム',s:8050000,r:58},{n:'新勢力チーム',s:8160000,r:102}],
   '2026-04': [{n:'TOPチーム',s:8620000,r:78},{n:'CREATEチーム',s:6950000,r:77},{n:'新勢力チーム',s:3760000,r:48}],
@@ -771,6 +863,61 @@ const STORE_ANALYSIS = {
   },
 };
 
+// ============================================================
+// DECISIONS — 判断台帳
+// その月に出した指摘・打ち手を記録し、翌月の実データで自動採点する。
+// kind:'risk' … 当時のリスク指摘。op/value は「悪化が続く条件」を書く → 成立=的中
+// kind:'call' … その月に出した打ち手。op/value は「狙った到達条件」 → 成立=達成
+// src:'retro'  … 当時の分析記述から遡及して台帳化したもの（その月に打ち手として出してはいない）
+// metric は MONTHLY[due]['CREATE'|'PLUS'].<キー> を指す。metric 無しは手動判定。
+// 判定は「見ていた指標が動いたか」であって、施策と結果の因果を証明するものではない。
+// ============================================================
+const DECISIONS = {
+  '2026-07': {
+    verdict: '本店は新規が増えても既存客が抜ける「漏れバケツ」。PLUSは客数が健全なまま客単価だけが崩壊しており、需要ではなく供給（単価を作れるホスト）の問題。両店とも1体が急減。',
+    rows: [
+      {kind:'risk', to:'CREATE', src:'retro', text:'新規獲得では既存客の離脱を埋められていない（リピート-25%・総卓-18%）',
+       metric:'CREATE.repeatC', op:'<=', value:18, due:'2026-08', note:'8月もリピートが18件以下なら漏れバケツの継続'},
+      {kind:'risk', to:'PLUS', src:'retro', text:'客単価の崩壊（¥62,062→¥49,173）。客は取れているのに単価が作れていない',
+       metric:'PLUS.avgSpend', op:'<', value:49173, due:'2026-08', note:'8月も¥49,173を下回れば悪化継続'},
+    ],
+    watch: [],
+  },
+  '2026-08': {
+    verdict: '実売上は+20.6%と伸びたが目標引き上げで達成率は悪化して見える月。7月の漏れバケツは改善した一方、未収率の急悪化とRYOTO1人への依存が新たなリスク。',
+    rows: [
+      {kind:'risk', to:'CREATE', src:'retro', text:'RYOTOの突出（124万→697万）が店全体を押し上げている一人依存リスク',
+       metric:'CREATE.sales', op:'<', value:24000000, due:'2026-09', note:'跳ねが剥がれれば店の売上がそのまま落ちる'},
+      {kind:'risk', to:'CREATE', src:'retro', text:'未収率が11.6%→16.3%へ急悪化。新規流入の与信管理',
+       metric:'CREATE.uncRate', op:'>', value:10, due:'2026-09', note:'9月も10%超なら構造的な回収問題'},
+      {kind:'risk', to:'PLUS', src:'retro', text:'1体 23→8（-65%）で採用ファネルがほぼ機能停止',
+       metric:'PLUS.trial', op:'<', value:8, due:'2026-09', note:'9月も8件未満なら補充ルートの断絶'},
+    ],
+    watch: [],
+  },
+  '2026-09': {
+    verdict: '本店の全面縮小（達成率63%・目標比▲984万）とPLUSの質的な伸び（115%・客単価+25%）が同時に起きた月。本店はRYOTO1人の問題ではなく、彼を除いても-25.7%。顧客数が3ヶ月続けて前月割れ（76→74→73→65）しており、売上の変動より重い。',
+    rows: [
+      {kind:'call', to:'こうき', text:'ウタ・ひよりの在籍確認（両名9月売上0・連絡不通との報告と一致）',
+       due:'2026-10', note:'退店なら頭数の実態を正す必要がある'},
+      {kind:'call', to:'こうき', text:'1体4件の内訳を確認し、個人依存から仕組みへ寄せる',
+       metric:'CREATE.trial', op:'>=', value:10, due:'2026-10', note:'1体は2〜3ヶ月後の頭数に効く先行指標'},
+      {kind:'call', to:'こうき', text:'新規96名の再来を追う。新規獲得より「2回目につなげる」へ重心を移す',
+       metric:'CREATE.custC', op:'>=', value:65, due:'2026-10', note:'顧客数が下げ止まれば達成'},
+      {kind:'call', to:'ショコラ', text:'客単価+25%の要因を本人たちから言語化し、他メンバーへ横展開する',
+       metric:'PLUS.avgSpend', op:'>=', value:57520, due:'2026-10', note:'今月の最大の資産は再現性'},
+      {kind:'call', to:'ショコラ', text:'ショコラBDウィーク（8日間）に体験の声かけを最初から組み込む',
+       metric:'PLUS.trial', op:'>=', value:12, due:'2026-10', note:'入退店ゼロが続いており人が集まる数少ない機会'},
+      {kind:'call', to:'キイチ', text:'10〜12月のコーチングは本店側に比重を置く',
+       due:'2026-10', note:'同じプログラムで一歩(PLUS)+176%・RYOTO-78%と店舗で結果が分かれている'},
+    ],
+    watch: [
+      {metric:'CREATE.trial', why:'4→? 10月も1桁なら11〜12月の人員補充が確実に詰まる'},
+      {metric:'CREATE.custC', why:'65→? 5ヶ月連続減なら構造問題として扱い、新規獲得から既存維持へ施策を切り替える'},
+    ],
+  },
+};
+
 // EVENT CALENDAR (BDs, campaigns — month-level granularity)
 const EVENTS = [
   {month:'2026-06', store:'plus',   type:'BD',       name:'りと'},
@@ -917,8 +1064,46 @@ function fmtMoM(cur, prev, invert=false) {
   return `<span class="${cls}">${isUp?'▲':'▼'}${Math.abs(p)}% MoM</span>`;
 }
 function achClass(r){ return r>=100?'ach-over':r<75?'ach-low':'ach-mid'; }
+// 年商10億に必要な月商。ROADMAPの計画月商8,200万（年9.84億）とは別物なので混ぜない
+const GOAL_ANNUAL  = 1000000000;
+const GOAL_MONTHLY = GOAL_ANNUAL/12;
+function groupSales(k){ const d=MONTHLY[k]; return d.CREATE.sales+d.PLUS.sales; }
+// 単月×12は月ごとに跳ねて使えないので、直近3ヶ月平均で均す
+function avg3Sales(key){
+  const idx=MONTHS.indexOf(key), vals=[];
+  for(let i=Math.max(0,idx-2);i<=idx;i++) vals.push(groupSales(MONTHS[i]));
+  return vals.reduce((a,b)=>a+b,0)/vals.length;
+}
+function targetBadge(key){
+  const idx=MONTHS.indexOf(key);
+  if(idx<1) return '';
+  const c=MONTHLY[key], pv=MONTHLY[MONTHS[idx-1]];
+  const ct=c.CREATE.target+c.PLUS.target, pt=pv.CREATE.target+pv.PLUS.target;
+  if(!pt) return '';
+  const d=(ct-pt)/pt*100;
+  return Math.abs(d)>5?`<span class="target-badge">目標 ${d>0?'+':''}${d.toFixed(0)}% 修正</span>`:'';
+}
 function fmtMonth(key){ const[y,m]=key.split('-'); return `${y}年${parseInt(m)}月`; }
 function mKey(key){ return 'm'+parseInt(key.split('-')[1]); }
+// 長い名簿は上位だけ出す。残りはボタンで開く（毎月見るのは上位＋自分の店の数名）
+function applyRowLimit(tableId, btnId, limit){
+  const tb=document.querySelector('#'+tableId+' tbody');
+  const btn=document.getElementById(btnId);
+  if(!tb||!btn) return;
+  const rows=Array.from(tb.rows);
+  if(rows.length<=limit){ btn.style.display='none'; return; }
+  btn.style.display='block';
+  rows.forEach((r,i)=>{ if(i>=limit){ r.classList.add('row-extra'); r.style.display='none'; } });
+  btn.dataset.open='0';
+  btn.textContent='全'+rows.length+'名を表示';
+}
+function toggleRows(tableId, btn){
+  const open=btn.dataset.open==='1';
+  document.querySelectorAll('#'+tableId+' tbody tr.row-extra').forEach(r=>{ r.style.display=open?'none':''; });
+  btn.dataset.open=open?'0':'1';
+  const total=document.querySelectorAll('#'+tableId+' tbody tr').length;
+  btn.textContent=open?('全'+total+'名を表示'):'上位10名に戻す';
+}
 function isExited(d, curMNum){
   for(let n=3;n<curMNum;n++){ if(d['tag'+n]==='退店') return true; }
   return false;
@@ -942,87 +1127,322 @@ function switchTab(tab, el) {
 }
 
 // ============================================================
-// INTEL ENGINE
+// INTEL ENGINE — 店舗シグナル（GROUP）と個人シグナル（店舗タブ）を分けて出す
+// 先行指標＝顧客数・1体・リピート率・客単価。売上より先に動くものを上に置く。
+// 欠測（null）は「その月この店の集計に無い」であって0ではない。必ず判定対象外にする。
 // ============================================================
-function generateIntel(key, prevKey) {
-  const monthIdx=MONTHS.indexOf(key);
-  const cur=MONTHLY[key];
-  const signals=[];
+const SEV = {critical:0, warning:1, info:2, positive:3};
 
-  // 生値を返す。null/undefined ＝ その月この店の集計に載っていない（他店へ研修・移籍・退店等）。
-  // 「売上0」とは意味が違うので、0に丸めて急落判定してはいけない。
-  function gv(m,idx){ const x=m[mKey(MONTHS[idx])]; return x==null?null:x; }
-  function scanStore(arr, label) {
-    const localRisers=[];
-    arr.forEach(m=>{
-      const v=gv(m,monthIdx);
-      const pv=monthIdx>0?gv(m,monthIdx-1):null;
-      const pp=monthIdx>1?gv(m,monthIdx-2):null;
-      // 当月この店に在籍していない人は判定対象外（Revelo・エイトの「106万→0万 急落」型の誤検知を防ぐ）
-      if(v===null) return;
-      if(!m.mgmt&&monthIdx>=2&&v===0&&pv===0&&pp===0){
-        signals.push({type:'critical',text:`${m.n}（${label}）`,detail:'3ヶ月連続売上0万 — 在籍継続の判断が必要'});
-      } else if(pv!==null&&pv>=30&&v<pv*0.7){
-        const p=Math.round((v-pv)/pv*100);
-        signals.push({type:'warning',text:`${m.n}（${label}）急落 ${p}%`,detail:`${pv}万 → ${v}万 — 原因確認が必要`});
-      }
-      if(pv!==null&&pv>0&&v>=pv*1.5&&v>=50){
-        const p=Math.round((v-pv)/pv*100);
-        localRisers.push({type:'positive',text:`${m.n}（${label}）急成長 +${p}%`,detail:`${pv}万 → ${v}万`,pct:p});
-      }
-    });
-    return localRisers;
+function seriesOf(storeKey, field, key, n){
+  n = n || 4;
+  const idx=MONTHS.indexOf(key), out=[];
+  for(let i=Math.max(0,idx-n+1); i<=idx; i++){
+    const v=MONTHLY[MONTHS[i]]?.[storeKey]?.[field];
+    out.push({m:MONTHS[i], v:(v==null?null:v)});
   }
-  const allRisers=[...scanStore(CREATE_INDIV,'本店'),...scanStore(PLUS_INDIV,'PLUS')];
-  allRisers.sort((a,b)=>b.pct-a.pct);
-  allRisers.slice(0,3).forEach(s=>signals.push(s));
-
-  const hA=cur.CREATE.achRate, pA=cur.PLUS.achRate;
-  if(hA>=100) signals.push({type:'positive',text:`本店 目標達成 ${hA}%`,detail:fmt(cur.CREATE.target)+' 突破'});
-  else if(hA<80) signals.push({type:'warning',text:`本店 達成率 ${hA}%`,detail:`目標まで ${100-hA}pt 未達`});
-  if(pA>=100) signals.push({type:'positive',text:`PLUS 目標達成 ${pA}%`,detail:fmt(cur.PLUS.target)+' 突破'});
-  else if(pA<80) signals.push({type:'warning',text:`PLUS 達成率 ${pA}%`,detail:`目標まで ${100-pA}pt 未達`});
-
-  if(cur.PLUS.uncRate<3.5) signals.push({type:'positive',text:`PLUS 未収率 ${cur.PLUS.uncRate}%`,detail:'低水準維持 — 指名固定化が進んでいる'});
-  else if(cur.PLUS.uncRate>6) signals.push({type:'warning',text:`PLUS 未収率 ${cur.PLUS.uncRate}%`,detail:'高水準 — 回収強化が必要'});
-
-  if(cur.PLUS.repeatRate>=40) signals.push({type:'positive',text:`PLUS リピート率 ${cur.PLUS.repeatRate}%`,detail:'固定客が増加中 — VIP育成フェーズへ'});
-
-  if(prevKey&&MONTHS.indexOf(prevKey)>0){
-    const pk2=MONTHS[MONTHS.indexOf(prevKey)-1];
-    const ct=CREATE_TEAMS[key],pt=CREATE_TEAMS[prevKey],pt2=CREATE_TEAMS[pk2];
-    if(ct&&pt&&pt2) ct.forEach(team=>{
-      const p=pt.find(t=>t.n===team.n),p2=pt2.find(t=>t.n===team.n);
-      if(p&&p2&&team.r<p.r&&p.r<p2.r)
-        signals.push({type:'critical',text:`${team.n} 達成率 ${team.r}%`,detail:`3ヶ月連続下落（${p2.r}%→${p.r}%→${team.r}%）`});
-    });
+  return out;
+}
+// 末尾から数えて連続で下がっている回数。欠測に当たったら打ち切る
+function consecDrop(series){
+  let n=0;
+  for(let i=series.length-1;i>0;i--){
+    const a=series[i].v, b=series[i-1].v;
+    if(a==null||b==null||!(a<b)) break;
+    n++;
   }
-
-  return {signals};
+  return n;
+}
+function seqText(series, disp){
+  const f=disp||(v=>v);
+  return series.filter(x=>x.v!=null).map(x=>f(x.v)).join(' → ');
 }
 
-function renderIntel(key,prevKey){
-  const {signals}=generateIntel(key,prevKey);
-  const el=document.getElementById('intelSection');
+function storeSignals(storeKey, label, key){
+  const idx=MONTHS.indexOf(key);
+  const cur=MONTHLY[key]?.[storeKey];
+  if(!cur) return [];
+  const prev=idx>0?MONTHLY[MONTHS[idx-1]]?.[storeKey]:null;
+  const out=[];
+  const push=(type,text,detail)=>out.push({type:type,text:text,detail:detail,store:storeKey});
+  // lead:true は先行指標ボードが表示を受け持つもの。判定ルールはここ1か所だけに置き、
+  // ボード側は field / short を読んで同じ結論を描く（INTELには再掲しない）
+  const pushLead=(type,field,short,text,detail)=>out.push({
+    type:type,text:text,detail:detail,store:storeKey,lead:true,field:field,short:short});
+
+  if(prev&&cur.sales!=null&&prev.sales!=null){
+    const mom=(cur.sales-prev.sales)/prev.sales*100;
+    if(mom<=-20) push('critical',`${label} 売上 ${mom.toFixed(1)}%`,`${fmt(prev.sales)} → ${fmt(cur.sales)} — 個人ではなく店全体の縮小`);
+  }
+  if(cur.target!=null&&cur.sales!=null&&cur.sales<cur.target){
+    const gap=cur.target-cur.sales;
+    if(gap>=5000000) push('warning',`${label} 目標比 ▲${fmt(gap)}`,`目標 ${fmt(cur.target)} に対し ${fmt(cur.sales)}`);
+  }
+  if(prev&&prev.target&&cur.target){
+    const d=(cur.target-prev.target)/prev.target*100;
+    if(Math.abs(d)>15) push('warning',`${label} 目標${d>0?'引き上げ':'下方修正'} ${d>0?'+':''}${d.toFixed(0)}%`,`${fmt(prev.target)} → ${fmt(cur.target)} — 達成率を前月と並べて読まない`);
+  }
+  const cs=seriesOf(storeKey,'custC',key,5), cd=consecDrop(cs);
+  if(cd>=3) pushLead('critical','custC',`${cd}ヶ月連続減`,`${label} 顧客数 ${cd}ヶ月連続減`,`${seqText(cs)}名`);
+  else if(cd===2) pushLead('warning','custC','2ヶ月連続減',`${label} 顧客数 2ヶ月連続減`,`${seqText(cs)}名`);
+
+  if(cur.trial!=null){
+    const ts=seriesOf(storeKey,'trial',key,4), td=consecDrop(ts);
+    if(cur.trial<5) pushLead('critical','trial',`危険水域（${cur.trial}件）`,`${label} 1体 ${cur.trial}件`,`${seqText(ts)}`);
+    else if(prev?.trial!=null&&prev.trial>0&&cur.trial<=prev.trial*0.5) pushLead('critical','trial',`半減 ${prev.trial}→${cur.trial}件`,`${label} 1体 半減 ${prev.trial}→${cur.trial}件`,`${seqText(ts)}件`);
+    else if(td>=2) pushLead('warning','trial',`${td}ヶ月連続減`,`${label} 1体 ${td}ヶ月連続減`,`${seqText(ts)}件`);
+  }
+  if(prev?.repeatRate!=null&&cur.repeatRate!=null){
+    const d=cur.repeatRate-prev.repeatRate;
+    if(d<=-5) pushLead('warning','repeatRate',`前月比 ${d.toFixed(1)}pt`,`${label} リピート率 ${d.toFixed(1)}pt`,`${prev.repeatRate}% → ${cur.repeatRate}%`);
+    else if(d>=5) pushLead('positive','repeatRate',`前月比 +${d.toFixed(1)}pt`,`${label} リピート率 +${d.toFixed(1)}pt`,`${prev.repeatRate}% → ${cur.repeatRate}%`);
+  }
+  if(prev?.avgSpend!=null&&cur.avgSpend!=null){
+    const d=(cur.avgSpend-prev.avgSpend)/prev.avgSpend*100;
+    if(d<=-15) pushLead('warning','avgSpend',`前月比 ${d.toFixed(1)}%`,`${label} 客単価 ${d.toFixed(1)}%`,`¥${prev.avgSpend.toLocaleString()} → ¥${cur.avgSpend.toLocaleString()}`);
+    else if(d>=15) pushLead('positive','avgSpend',`前月比 +${d.toFixed(1)}%`,`${label} 客単価 +${d.toFixed(1)}%`,`¥${prev.avgSpend.toLocaleString()} → ¥${cur.avgSpend.toLocaleString()}`);
+  }
+  if(cur.uncRate!=null){
+    if(cur.uncRate>10) push('warning',`${label} 未収率 ${cur.uncRate}%`,'高水準 — 回収・与信管理の強化が必要');
+    else if(prev?.uncRate!=null&&prev.uncRate-cur.uncRate>=5) push('positive',`${label} 未収率 ${prev.uncRate}% → ${cur.uncRate}%`,'大幅改善 — 実質的な回収の積み増し');
+  }
+  if(cur.achRate!=null){
+    if(cur.achRate>=100) push('positive',`${label} 目標達成 ${cur.achRate}%`,`${fmt(cur.target)} 突破`);
+    else if(cur.achRate<80) push('warning',`${label} 達成率 ${cur.achRate}%`,`目標まで ${100-cur.achRate}pt 未達`);
+  }
+  return out;
+}
+
+function generateIntel(key){
+  const signals=[...storeSignals('CREATE','本店',key),...storeSignals('PLUS','PLUS',key)];
+  signals.sort((a,b)=>SEV[a.type]-SEV[b.type]);
+  const stateOf=st=>{
+    const mine=signals.filter(s=>s.store===st);
+    if(mine.some(s=>s.type==='critical')) return 'red';
+    if(mine.some(s=>s.type==='warning'))  return 'amber';
+    return 'green';
+  };
+  return {signals:signals, states:{CREATE:stateOf('CREATE'), PLUS:stateOf('PLUS')}};
+}
+
+// 個人シグナル：幹部が動く粒度なので店舗タブに置く。運営メンバーは全ルールから除外する
+function indivSignals(arr, label, key){
+  const monthIdx=MONTHS.indexOf(key);
+  const gv=(m,idx)=>{const x=m[mKey(MONTHS[idx])]; return x==null?null:x;};
+  const fallers=[], risers=[];
+  arr.forEach(m=>{
+    if(m.mgmt) return;
+    const v=gv(m,monthIdx);
+    const pv=monthIdx>0?gv(m,monthIdx-1):null;
+    const pp=monthIdx>1?gv(m,monthIdx-2):null;
+    if(v===null) return;
+    if(monthIdx>=2&&v===0&&pv===0&&pp===0){
+      fallers.push({type:'critical',text:`${m.n}（${label}）`,detail:'3ヶ月連続売上0万 — 在籍継続の判断が必要',pct:-100});
+    } else if(pv!==null&&pv>=30&&v<pv*0.7){
+      const p=Math.round((v-pv)/pv*100);
+      fallers.push({type:'warning',text:`${m.n}（${label}）急落 ${p}%`,detail:`${pv}万 → ${v}万 — 原因確認が必要`,pct:p});
+    }
+    if(pv!==null&&pv>0&&v>=pv*1.5&&v>=50){
+      const p=Math.round((v-pv)/pv*100);
+      risers.push({type:'positive',text:`${m.n}（${label}）急成長 +${p}%`,detail:`${pv}万 → ${v}万`,pct:p});
+    }
+  });
+  fallers.sort((a,b)=>a.pct-b.pct);
+  risers.sort((a,b)=>b.pct-a.pct);
+  return fallers.concat(risers.slice(0,3));
+}
+
+function signalRows(signals){
   const iMap={critical:'⚑',warning:'▲',positive:'◆'};
   const cMap={critical:'#c76b6b',warning:'#d4a74a',positive:'#6db86d'};
   const bgMap={critical:'#2a1a1a',warning:'#231e10',positive:'#132013'};
   const brMap={critical:'#5a2020',warning:'#5a4010',positive:'#204020'};
-
-  const sHtml=signals.length?signals.map(s=>`
+  if(!signals.length) return '<div style="font-size:11px;color:#777;padding:4px 0">検出なし</div>';
+  return signals.map(s=>`
     <div style="display:flex;gap:10px;align-items:flex-start;padding:9px 12px;background:${bgMap[s.type]};border:1px solid ${brMap[s.type]};border-radius:4px;margin-bottom:6px">
       <span style="color:${cMap[s.type]};font-size:11px;flex-shrink:0;margin-top:1px">${iMap[s.type]}</span>
       <div>
         <div style="font-size:12px;color:${cMap[s.type]}">${s.text}</div>
-        <div style="font-size:11px;color:#fff;margin-top:2px">${s.detail}</div>
+        <div style="font-size:11px;color:#ddd;margin-top:2px">${s.detail}</div>
       </div>
-    </div>`).join(''):'<div style="font-size:11px;color:#444;padding:4px 0">検出なし</div>';
+    </div>`).join('');
+}
 
+function renderIntel(key){
+  const {signals}=generateIntel(key);
+  const outcome=signals.filter(s=>!s.lead);  // 先行指標は上のボードが本籍
+  document.getElementById('intelSection').innerHTML=`
+    <div class="card">
+      <div class="card-title">INTEL — 売上・目標まわりのシグナル</div>
+      ${signalRows(outcome)}
+      <div style="font-size:10px;color:#777;margin-top:10px;line-height:1.6">顧客数・1体・リピート率・客単価は上の先行指標ボードに、個人単位のシグナルは各店舗タブにあります。</div>
+    </div>`;
+}
+
+function renderStoreIntel(containerId, arr, label, key){
+  const sig=indivSignals(arr,label,key);
+  document.getElementById(containerId).innerHTML=`
+    <div class="card">
+      <div class="card-title">個人シグナル — ${label}（自動検知）</div>
+      ${signalRows(sig)}
+      <div style="font-size:10px;color:#777;margin-top:10px;line-height:1.6">運営メンバーは判定から除外。研修・移籍で当月この店の集計に載っていない人も対象外です。</div>
+    </div>`;
+}
+
+// ============================================================
+// 先行指標ボード — 売上より先に動く4指標を店舗ごとに並べる
+// ============================================================
+const LEAD_DEFS=[
+  {k:'custC',      label:'顧客数',    unit:'名', disp:v=>v},
+  {k:'trial',      label:'1体',       unit:'件', disp:v=>v},
+  {k:'repeatRate', label:'リピート率', unit:'%', disp:v=>v},
+  {k:'avgSpend',   label:'客単価',    unit:'',  disp:v=>'¥'+v.toLocaleString()},
+];
+
+function diffText(cur, prev, def, dec){
+  if(def.k==='avgSpend'){
+    const pct=(cur-prev)/prev*100;
+    return pct.toFixed(1)+'%';
+  }
+  return (cur-prev).toFixed(dec)+(def.unit||'');
+}
+function leadCell(storeKey, def, key, sigs){
+  const ser=seriesOf(storeKey,def.k,key,4);
+  const cur=ser[ser.length-1].v;
+  if(cur==null) return `<div class="lead-cell"><div class="lead-label">${def.label}</div><div class="lead-val" style="color:#666">—</div><div class="lead-seq">この月は集計なし</div></div>`;
+  const prev=ser.length>1?ser[ser.length-2].v:null;
+  const dec=def.k==='repeatRate'?1:0;
+  // 判定ルールは storeSignals に一本化してある。ここはその結論を描くだけ
+  const sig=sigs.find(x=>x.lead&&x.store===storeKey&&x.field===def.k);
+  let cls='', judge='';
+  if(sig){
+    cls = sig.type==='critical'?'crit' : sig.type==='warning'?'warn' : 'good';
+    judge = `<span class="${sig.type==='positive'?'up':'down'}">${sig.short}</span>`;
+  } else if(prev==null){
+    judge='<span class="flat">比較データなし</span>';
+  } else if(cur>prev){
+    cls='good'; judge=`<span class="up">前月比 +${diffText(cur,prev,def,dec)}</span>`;
+  } else if(cur<prev){
+    judge=`<span class="down">前月比 ${diffText(cur,prev,def,dec)}</span>`;
+  } else {
+    judge='<span class="flat">前月比 ±0</span>';
+  }
+  return `<div class="lead-cell ${cls}">
+    <div class="lead-label">${def.label}</div>
+    <div class="lead-val">${def.disp(cur)}<span class="lv-unit">${def.unit}</span></div>
+    <div class="lead-seq">${seqText(ser,def.disp)}</div>
+    <div class="lead-judge">${judge}</div>
+  </div>`;
+}
+
+function renderLeadBoard(key){
+  const sigs=generateIntel(key).signals;
+  const block=(storeKey,label,cls)=>`
+    <div class="store-head ${cls}">${label}</div>
+    <div class="lead-grid">${LEAD_DEFS.map(d=>leadCell(storeKey,d,key,sigs)).join('')}</div>`;
+  document.getElementById('leadSection').innerHTML=`
+    <div class="card">
+      <div class="card-title">先行指標 — 売上より先に動く4つ</div>
+      ${block('CREATE','CREATE 本店','')}
+      <div style="height:14px"></div>
+      ${block('PLUS','CREATE PLUS','plus')}
+    </div>`;
+}
+
+// ============================================================
+// 判断台帳 — 先月の指摘を今月のデータで採点する
+// ============================================================
+function metricVal(path, monthKey){
+  const parts=path.split('.');
+  const v=MONTHLY[monthKey]?.[parts[0]]?.[parts[1]];
+  return v==null?null:v;
+}
+function evalRow(row){
+  if(!row.metric) return {state:'manual'};
+  const v=metricVal(row.metric,row.due);
+  if(v==null) return {state:'wait'};
+  const ok = row.op==='>=' ? v>=row.value
+           : row.op==='>'  ? v> row.value
+           : row.op==='<=' ? v<=row.value
+           :                 v< row.value;
+  return {state:ok?'yes':'no', v:v};
+}
+function resultChip(row){
+  const r=evalRow(row);
+  if(r.state==='manual') return '<span class="lg-result lg-wait">手動確認</span>';
+  if(r.state==='wait')   return '<span class="lg-result lg-wait">判定待ち</span>';
+  if(row.kind==='risk')  return r.state==='yes'
+      ? '<span class="lg-result lg-miss">指摘が的中</span>'
+      : '<span class="lg-result lg-hit">回避</span>';
+  return r.state==='yes'
+      ? '<span class="lg-result lg-hit">達成</span>'
+      : '<span class="lg-result lg-miss">未達</span>';
+}
+function metricText(row){
+  if(!row.metric) return '<span class="lg-metric">指標なし</span>';
+  const big=/\.(avgSpend|sales)$/.test(row.metric);
+  const v=metricVal(row.metric,row.due);
+  const opTxt={'>=':'≥','>':'>','<=':'≤','<':'<'}[row.op];
+  const tgt=big?(row.metric.endsWith('sales')?fmt(row.value):'¥'+row.value.toLocaleString()):row.value;
+  const act=v==null?'—':(big?(row.metric.endsWith('sales')?fmt(v):'¥'+v.toLocaleString()):v);
+  return `<span class="lg-metric">${row.metric} ${opTxt} ${tgt}<br>実績 ${act}</span>`;
+}
+function ledgerTable(rows){
+  if(!rows.length) return '<div style="font-size:11px;color:#777;padding:6px 0">該当なし</div>';
+  return `<table class="ledger">
+    <thead><tr><th>区分</th><th>宛先</th><th>内容</th><th>判定指標</th><th style="text-align:right">結果</th></tr></thead>
+    <tbody>${rows.map(r=>`
+      <tr>
+        <td><span class="lg-kind ${r.kind==='risk'?'lg-kind-risk':'lg-kind-call'}">${r.kind==='risk'?'リスク指摘':'打ち手'}</span></td>
+        <td class="lg-to">${r.to}${r.src==='retro'?'<span class="lg-retro">遡及</span>':''}</td>
+        <td>${r.text}${r.note?`<div class="lg-note">${r.note}</div>`:''}</td>
+        <td>${metricText(r)}</td>
+        <td style="text-align:right">${resultChip(r)}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+function renderLedger(key, prevKey){
+  const prevD=prevKey?DECISIONS[prevKey]:null;
+  const curD=DECISIONS[key];
+  const due=prevD?prevD.rows.filter(r=>r.due===key):[];
+  const watch=(curD&&curD.watch)?curD.watch:[];
+  const el=document.getElementById('ledgerSection');
+  if(!prevD&&!curD){ el.innerHTML=''; return; }
   el.innerHTML=`
-    <div class="card" style="margin-bottom:12px;">
-      <div class="card-title">INTEL — 自動シグナル</div>
-      <div style="font-size:9px;color:#fff;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">SIGNALS</div>
-      ${sHtml}
+    <div class="card">
+      <div class="card-title">判断台帳 — 先月の指摘 → 今月の結果</div>
+      ${ledgerTable(due)}
+      <div class="card-title" style="margin-top:26px">今月出した打ち手 — 来月のデータで採点する</div>
+      ${ledgerTable((curD&&curD.rows)?curD.rows:[])}
+      ${watch.length?`
+      <div style="margin-top:20px;padding:13px 15px;background:rgba(196,151,74,0.05);border:1px solid rgba(196,151,74,0.16);border-radius:6px">
+        <div style="font-size:9px;color:#c4974a;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px">来月いちばん見る数字</div>
+        ${watch.map(w=>`<div style="font-size:11px;color:#ccc;line-height:1.65;padding:3px 0"><span class="lg-metric">${w.metric}</span> — ${w.why}</div>`).join('')}
+      </div>`:''}
+      <div style="font-size:10px;color:#777;margin-top:14px;line-height:1.6">
+        「達成／未達」「的中／回避」は、見ていた指標がその方向へ動いたかどうかを示すものであり、施策と結果の因果を証明するものではありません。「遡及」＝当時の分析記述から後で台帳化したもの。
+      </div>
+    </div>`;
+}
+
+// ============================================================
+// 一行判定
+// ============================================================
+function renderVerdict(key){
+  const d=DECISIONS[key];
+  const states=generateIntel(key).states;
+  const stateLabel={red:'要対応',amber:'注意',green:'良好'};
+  const chip=(label,st)=>`
+    <div class="state-chip sc-${st}">
+      <div class="sc-store">${label}</div>
+      <div class="sc-state">${stateLabel[st]}</div>
+    </div>`;
+  document.getElementById('verdictSection').innerHTML=`
+    <div class="verdict-bar">
+      <div class="verdict-text">${(d&&d.verdict)?d.verdict:'この月の判定はまだ記入されていません。'}</div>
+      <div class="verdict-states">
+        ${chip('CREATE',states.CREATE)}
+        ${chip('PLUS',states.PLUS)}
+      </div>
     </div>`;
 }
 
@@ -1045,7 +1465,10 @@ function renderAll() {
 // GROUP
 // ============================================================
 function renderGroup(key, prevKey) {
-  renderIntel(key, prevKey);
+  renderVerdict(key);
+  renderLeadBoard(key);
+  renderLedger(key, prevKey);
+  renderIntel(key);
   const c=MONTHLY[key], p=prevKey?MONTHLY[prevKey]:null;
   const gs=c.CREATE.sales+c.PLUS.sales;
   const gt=c.CREATE.target+c.PLUS.target;
@@ -1053,17 +1476,20 @@ function renderGroup(key, prevKey) {
   const gr=Math.round(gs/gt*100);
 
   // KPIs
+  const gap=gs-gt;
+  const avg3=avg3Sales(key);
+  const toGoal=GOAL_MONTHLY-avg3;
   const kpis=[
-    {l:'グループ総売上', v:fmt(gs),                   ch:p?fmtMoM(gs,ps):''},
-    {l:'グループ達成率', v:gr,    u:'%',              ch:'', good:gr>=100},
-    {l:'CREATE 達成率',  v:c.CREATE.achRate, u:'%',  ch:'', good:c.CREATE.achRate>=100},
-    {l:'PLUS 達成率',    v:c.PLUS.achRate,   u:'%',  ch:'', good:c.PLUS.achRate>=100},
-    {l:'年換算ペース',   v:(gs/10000*12/10000).toFixed(1), u:'億', ch:''},
+    {l:'グループ総売上',   v:fmt(gs),                                  ch:p?fmtMoM(gs,ps):''},
+    {l:'目標差',           v:(gap>=0?'+':'▲')+fmt(Math.abs(gap)),      ch:`目標 ${fmt(gt)}`, good:gap>=0, bad:gap<0},
+    {l:'グループ達成率',   v:gr, u:'%',                                ch:targetBadge(key), good:gr>=100},
+    {l:'年換算ペース',     v:(avg3*12/100000000).toFixed(1), u:'億',   ch:'直近3ヶ月平均'},
+    {l:'年商10億まで',     v:(toGoal>0?'▲':'+')+fmt(Math.abs(toGoal)), ch:`必要月商 ${fmt(GOAL_MONTHLY)}／月`, good:toGoal<=0, bad:toGoal>0},
   ];
   document.getElementById('groupKpi').innerHTML=kpis.map(k=>`
     <div class="kpi">
       <div class="kpi-label">${k.l}</div>
-      <div class="kpi-value${k.good?' good':''}">${k.v}<span class="kpi-unit">${k.u||''}</span></div>
+      <div class="kpi-value${k.good?' good':''}${k.bad?' bad':''}">${k.v}<span class="kpi-unit">${k.u||''}</span></div>
       <div class="kpi-change">${k.ch}</div>
     </div>`).join('');
 
@@ -1175,8 +1601,11 @@ function renderGroup(key, prevKey) {
       </tr>`;}).join('')}
     </tbody>`;
 
+  applyRowLimit('groupRankTable','groupRankMore',10);
+
   // GROUP個人総卓数ランキング
   renderVolRank('groupVolRankTable', allCast, key, prevKey, true);
+  applyRowLimit('groupVolRankTable','groupVolRankMore',10);
 
   // Compare table
   document.getElementById('groupCmpTable').innerHTML=`
@@ -1258,6 +1687,8 @@ function renderCreate(key, prevKey) {
   const c=MONTHLY[key].CREATE??null, p=prevKey?(MONTHLY[prevKey].CREATE??null):null;
   const mk=mKey(key);
 
+  renderStoreIntel('createIntel', CREATE_INDIV, '本店', key);
+
   renderStoreAnalysis('createAnalysis','CREATE',key,prevKey);
 
   // KPIs
@@ -1334,6 +1765,8 @@ function renderPlus(key, prevKey) {
   const c=MONTHLY[key].PLUS??null, p=prevKey?(MONTHLY[prevKey].PLUS??null):null;
   const mk=mKey(key);
 
+  renderStoreIntel('plusIntel', PLUS_INDIV, 'PLUS', key);
+
   renderStoreAnalysis('plusAnalysis','PLUS',key,prevKey);
 
   // KPIs
@@ -1384,16 +1817,16 @@ function renderPlus(key, prevKey) {
   const curMNumP=parseInt(key.split('-')[1]);
   const tkP=tKeyOf(key);
   const sorted=[...PLUS_INDIV].filter(d=>!isExited(d,curMNumP)).sort((a,b)=>(b[mk]??-1)-(a[mk]??-1));
-  function tagHtml(d){
-    const tags=[];
-    [d.tag3,d.tag4,d.tag5,d.tag6].forEach(t=>{
-      if(!t) return;
-      const cls=/退店/.test(t)?'badge-exit':/(移籍|復帰|研修)/.test(t)?'badge-move':'badge-new';
-      tags.push(`<span class="badge ${cls}">${t}</span>`);
-    });
-    return tags.join('');
-  }
   const recentMonthsP=MONTHS.slice(-3);
+  // 表示中の3ヶ月のタグを出す（CREATE側と同じ扱い。tag3〜tag6固定だと7月以降が消えていた）
+  function tagHtml(d){
+    return recentMonthsP.map(m=>{
+      const t=d['tag'+parseInt(m.split('-')[1])];
+      if(!t) return '';
+      const cls=/退店/.test(t)?'badge-exit':/(移籍|復帰|研修)/.test(t)?'badge-move':'badge-new';
+      return `<span class="badge ${cls}">${t}</span>`;
+    }).join('');
+  }
   document.getElementById('pIndivTable').innerHTML=`
     <thead><tr>
       <th style="text-align:left">スタッフ</th>
@@ -1441,7 +1874,7 @@ function renderReport(key) {
     return;
   }
 
-  function storeCard(d, label, color) {
+  function storeCard(d, label, color, prevNext) {
     if (!d) return '<div class="card" style="text-align:center;color:#444;padding:30px">データなし</div>';
     const row = (items,c='#bbb') => (items||[]).map(i=>`<div style="padding:5px 0;border-bottom:1px solid #1e1e1e;font-size:12px;color:${c};line-height:1.5">${i}</div>`).join('');
     const evtRows = (d.events||[]).map(e=>`
@@ -1461,7 +1894,8 @@ function renderReport(key) {
 
     return `<div class="card">
       <div class="card-title" style="color:${color}">${label}</div>
-      <div style="font-size:9px;color:#555;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px">重点テーマ：<span style="color:#888">${d.theme||'—'}</span></div>
+      <div style="font-size:9px;color:#555;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">重点テーマ：<span style="color:#888">${d.theme||'—'}</span></div>
+      ${prevNext?`<div style="font-size:10px;color:#777;margin-bottom:14px;line-height:1.6">先月の「来月のテーマ」：${prevNext}${d.nextTheme===prevNext?'<span class="target-badge">2ヶ月連続で同じ宣言</span>':''}</div>`:'<div style="margin-bottom:14px"></div>'}
       <div class="rep-g2" style="margin-bottom:14px">
         <div>
           <div style="font-size:9px;color:#6db86d;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">▼ 良かった点</div>
@@ -1499,8 +1933,10 @@ function renderReport(key) {
     </div>`;
   }
 
+  const prevR = curIdx>0 ? MONTHLY_REPORTS[MONTHS[curIdx-1]] : null;
   document.getElementById('reportStoreCards').innerHTML =
-    storeCard(r.create,'CREATE','#c4974a') + storeCard(r.plus,'CREATE PLUS','#7aadaa');
+    storeCard(r.create,'CREATE','#c4974a', prevR&&prevR.create?prevR.create.nextTheme:null) +
+    storeCard(r.plus,'CREATE PLUS','#7aadaa', prevR&&prevR.plus?prevR.plus.nextTheme:null);
 }
 
 // ============================================================
@@ -1508,14 +1944,20 @@ function renderReport(key) {
 // ============================================================
 function renderRoadmapFin(){
   const lk=MONTHS[MONTHS.length-1];
-  const d=MONTHLY[lk];
-  const gs=d.CREATE.sales+d.PLUS.sales;
+  const gs=groupSales(lk);
+  const avg3=avg3Sales(lk);
   const mNum=parseInt(lk.split('-')[1]);
+  const need=GOAL_MONTHLY-avg3;
   document.getElementById('finSalesLabel').textContent=`最新月（${mNum}月）グループ売上`;
   document.getElementById('finSalesVal').innerHTML=`${Math.round(gs/10000).toLocaleString()}<span class="fin-unit">万円</span>`;
-  document.getElementById('finAnnualVal').innerHTML=`${(gs*12/100000000).toFixed(1)}<span class="fin-unit">億円</span>`;
+  document.getElementById('finAnnualVal').innerHTML=`${(avg3*12/100000000).toFixed(1)}<span class="fin-unit">億円</span>`;
+  document.getElementById('finNeedVal').innerHTML=`${Math.round(GOAL_MONTHLY/10000).toLocaleString()}<span class="fin-unit">万円</span>`;
+  document.getElementById('finGapVal').innerHTML= need>0
+    ? `<span style="color:#c76b6b">▲${Math.round(need/10000).toLocaleString()}</span><span class="fin-unit">万円／月</span>`
+    : `<span style="color:#6db86d">到達</span>`;
 }
 Chart.defaults.color='#666';
+document.getElementById('dataAsOf').textContent=`データ最終月：${fmtMonth(MONTHS[MONTHS.length-1])}（定例会資料）`;
 renderRoadmapFin();
 renderAll();
 setTimeout(()=>{const sp=document.getElementById('splash');if(sp)sp.remove();},1500);
