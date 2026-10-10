@@ -3,6 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 売上・個人データを載せた画面なので検索には載せない（URLを知っている人だけが見る運用） -->
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="googlebot" content="noindex,nofollow">
+<meta name="theme-color" content="#171717">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CREATE EXEC">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
 <title>CREATE GROUP — EXECUTIVE DASHBOARD</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Sans+JP:wght@100;300;400&display=swap" rel="stylesheet">
@@ -298,6 +308,19 @@ body{
   .kpi,.card,.kpi-value,.tab-btn{transition:none;}
   .kpi:hover,.card:hover{transform:none;}
 }
+@media print{
+  /* 定例会で配る用。開いているタブだけを紙に落とす */
+  .site-header{position:static;box-shadow:none;}
+  .tab-nav,.more-btn,#splash{display:none!important;}
+  .tab-content{display:none!important;}
+  .tab-content.active{display:block!important;animation:none;padding:0;}
+  .card,.kpi{break-inside:avoid;page-break-inside:avoid;box-shadow:none;transform:none!important;}
+  .card:hover,.kpi:hover{transform:none!important;box-shadow:none;}
+  .ledger tr,.lead-cell,.verdict-bar{break-inside:avoid;page-break-inside:avoid;}
+  .row-extra{display:table-row!important;}
+  body{background:#171717!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @page{margin:12mm;}
+}
 @media(max-width:768px){
   .kpi-r4,.kpi-r5,.kpi-r6,.kpi-r7{grid-template-columns:repeat(2,1fr);}
   .g2,.g3,.g2h{grid-template-columns:1fr;}
@@ -371,6 +394,7 @@ body{
     <div class="card-title">店舗比較サマリー</div>
     <table class="dtable" id="groupCmpTable"></table>
   </div>
+  <div id="targetLogSection"></div>
   <div class="card">
     <div class="card-title">GROUP 個人売上ランキング — 当月</div>
     <table class="dtable" id="groupRankTable"></table>
@@ -388,6 +412,7 @@ body{
   <div class="kpi-row kpi-r4" id="createKpi"></div>
   <div id="createIntel"></div>
   <div id="createAnalysis"></div>
+  <div id="createFunnel"></div>
   <div class="card">
     <div class="card-title">CREATE本店 — 売上推移（万円）</div>
     <div class="chart-wrap" style="height:200px"><canvas id="cTrendChart"></canvas></div>
@@ -397,8 +422,9 @@ body{
     <div class="chart-wrap" style="height:200px"><canvas id="cVolChart"></canvas></div>
   </div>
   <div class="card">
-    <div class="card-title">顧客数・顧客単価推移</div>
+    <div class="card-title">新規・顧客数・顧客単価推移</div>
     <div class="chart-wrap" style="height:200px"><canvas id="cCustChart"></canvas></div>
+    <div style="font-size:11px;color:#ccc;line-height:1.7;margin-top:14px" id="cChurnNote"></div>
   </div>
   <div class="card">
     <div class="card-title">個人別売上（万円）・顧客数 — 当月降順</div>
@@ -415,6 +441,7 @@ body{
   <div class="kpi-row kpi-r4" id="plusKpi"></div>
   <div id="plusIntel"></div>
   <div id="plusAnalysis"></div>
+  <div id="plusFunnel"></div>
   <div class="card">
     <div class="card-title">CREATE PLUS — 月別推移（万円）</div>
     <div class="chart-wrap" style="height:190px"><canvas id="pTrendChart"></canvas></div>
@@ -424,8 +451,9 @@ body{
     <div class="chart-wrap" style="height:190px"><canvas id="pVolChart"></canvas></div>
   </div>
   <div class="card">
-    <div class="card-title">顧客数・顧客単価推移</div>
+    <div class="card-title">新規・顧客数・顧客単価推移</div>
     <div class="chart-wrap" style="height:190px"><canvas id="pCustChart"></canvas></div>
+    <div style="font-size:11px;color:#ccc;line-height:1.7;margin-top:14px" id="pChurnNote"></div>
   </div>
   <div class="card">
     <div class="card-title">個人別売上（万円）・顧客数 — 当月降順</div>
@@ -996,12 +1024,14 @@ function makeVolChart(canvasId, barDatasets, staffData){
 function makeCustChart(canvasId, storeKey, color){
   const cust=MONTHS.map(m=>MONTHLY[m][storeKey]?.custC??null);
   const unit=MONTHS.map(m=>{const d=MONTHLY[m][storeKey];return d?.custC?Math.round(d.sales/d.custC/10000):null;});
+  const newc=MONTHS.map(m=>MONTHLY[m][storeKey]?.newC??null);
   return new Chart(document.getElementById(canvasId),{
     type:'bar',
     data:{
       labels:MONTHS.map(m=>parseInt(m.split('-')[1])+'月'),
       datasets:[
         {label:'顧客数',data:cust,backgroundColor:color+'55',borderColor:color,borderWidth:1},
+        {label:'新規',data:newc,backgroundColor:'#6db86d33',borderColor:'#6db86d',borderWidth:1},
         {type:'line',label:'顧客単価',data:unit,borderColor:'#e0e0e0',backgroundColor:'transparent',
          borderWidth:2,pointRadius:3,pointBackgroundColor:'#e0e0e0',tension:.3,spanGaps:true,yAxisID:'y1'},
       ],
@@ -1103,6 +1133,21 @@ function toggleRows(tableId, btn){
   btn.dataset.open=open?'0':'1';
   const total=document.querySelectorAll('#'+tableId+' tbody tr').length;
   btn.textContent=open?('全'+total+'名を表示'):'上位10名に戻す';
+}
+// 初めて売上が載った月。店舗をまたいで同じ名前を探すので、研修での行き来は
+// 「入店」にならない（ひより・エイト・Reveloが移動月に新規入店として数えられていた）
+function debutMonth(d){
+  for(const m of MONTHS){ if(d[mKey(m)]!=null) return m; }
+  return null;
+}
+function debutMonthGroup(name){
+  const all=[...CREATE_INDIV,...PLUS_INDIV].filter(d=>d.n===name);
+  const firsts=all.map(debutMonth).filter(Boolean).sort();
+  return firsts[0]||null;
+}
+function joinersIn(arr, key){
+  if(MONTHS.indexOf(key)<=0) return null;
+  return arr.filter(d=>debutMonth(d)===key && debutMonthGroup(d.n)===key);
 }
 function isExited(d, curMNum){
   for(let n=3;n<curMNum;n++){ if(d['tag'+n]==='退店') return true; }
@@ -1349,6 +1394,69 @@ function renderLeadBoard(key){
 }
 
 // ============================================================
+// 新規と顧客数の対比。「新規が入っているのに顧客数が減る」を言葉にする。
+// 離脱の概算は 新規 − 顧客数の増減 だが、新規が顧客数を上回る月は
+// 両者の数え方が揃っていないということなので、数字を出さずにその旨を書く。
+// ============================================================
+function churnNote(storeKey, key){
+  const idx=MONTHS.indexOf(key);
+  const cur=MONTHLY[key]?.[storeKey], prev=idx>0?MONTHLY[MONTHS[idx-1]]?.[storeKey]:null;
+  if(!cur||cur.custC==null||cur.newC==null) return '';
+  if(!prev||prev.custC==null) return '<span style="color:#777">前月の顧客数がないため、増減はまだ出せません</span>';
+  const delta=cur.custC-prev.custC;
+  const head=`新規 ${cur.newC}名が入って、顧客数は ${prev.custC} → ${cur.custC}名（`+
+             `<span class="${delta>=0?'up':'down'}">${delta>=0?'+':''}${delta}</span>）。`;
+  const tail=delta<0
+    ? '<span class="down">新規を足してなお減っている＝既存客が同数以上抜けている</span>という読み方になります。'
+    : '新規の流入が既存客の抜けを上回った月です。';
+  return head+tail+
+    '<div style="font-size:10px;color:#777;margin-top:7px;line-height:1.6">'+
+    '離脱した実数は出していません。新規と顧客数で数え方（人／組、来店実数／担当客数）が揃っているか未確認のため、'+
+    '引き算した数字は根拠になりません。定義が確定したらここに離脱数を出します。</div>';
+}
+
+// ============================================================
+// 採用ファネル追跡 — 1体は2〜3ヶ月後の頭数に効く、という仮説を実データで見る
+// ============================================================
+function funnelRow(storeKey, arr, key){
+  const idx=MONTHS.indexOf(key);
+  const trial=MONTHLY[key]?.[storeKey]?.trial;
+  const lag=n=>{
+    const t=MONTHS[idx+n];
+    if(!t) return '<span class="lg-result lg-wait">判定待ち</span>';
+    const j=joinersIn(arr,t);
+    if(j==null) return '<span style="color:#666">—</span>';
+    const names=j.map(d=>d.n).join('・');
+    return `<span style="color:${j.length?'#e8e8e8':'#777'}">${j.length}名</span>` +
+           (names?`<div class="lg-note">${names}</div>`:'');
+  };
+  const mLabel=k=>parseInt(k.split('-')[1])+'月';
+  return `<tr>
+    <td class="lg-to">${mLabel(key)}</td>
+    <td style="font-family:'EB Garamond',serif;font-size:15px;color:${trial!=null&&trial<5?'#c76b6b':'#e8e8e8'}">${trial??'—'}${trial!=null?'<span style="font-size:10px;color:#888">件</span>':''}</td>
+    <td>${MONTHS[idx+2]?`<span class="lg-metric">${mLabel(MONTHS[idx+2])}</span><br>`:''}${lag(2)}</td>
+    <td>${MONTHS[idx+3]?`<span class="lg-metric">${mLabel(MONTHS[idx+3])}</span><br>`:''}${lag(3)}</td>
+  </tr>`;
+}
+function renderFunnel(containerId, storeKey, arr, label){
+  const months=MONTHS.filter(m=>MONTHLY[m]?.[storeKey]?.trial!=null);
+  const el=document.getElementById(containerId);
+  if(!months.length){ el.innerHTML=''; return; }
+  el.innerHTML=`
+    <div class="card">
+      <div class="card-title">採用ファネル追跡 — 1体はいつ頭数になるか（${label}）</div>
+      <table class="ledger">
+        <thead><tr><th>1体を出した月</th><th>1体</th><th>2ヶ月後の入店</th><th>3ヶ月後の入店</th></tr></thead>
+        <tbody>${months.map(m=>funnelRow(storeKey,arr,m)).join('')}</tbody>
+      </table>
+      <div style="font-size:10px;color:#777;margin-top:12px;line-height:1.6">
+        入店＝グループ全体で初めて売上が計上された月がその月の人。2026年3月はデータの開始月のため入店として数えていません。
+        研修での他店への行き来（ひより・エイト・Revelo等）は入店に数えていません。
+      </div>
+    </div>`;
+}
+
+// ============================================================
 // 判断台帳 — 先月の指摘を今月のデータで採点する
 // ============================================================
 function metricVal(path, monthKey){
@@ -1420,6 +1528,45 @@ function renderLedger(key, prevKey){
       </div>`:''}
       <div style="font-size:10px;color:#777;margin-top:14px;line-height:1.6">
         「達成／未達」「的中／回避」は、見ていた指標がその方向へ動いたかどうかを示すものであり、施策と結果の因果を証明するものではありません。「遡及」＝当時の分析記述から後で台帳化したもの。
+      </div>
+    </div>`;
+}
+
+// ============================================================
+// 目標の改定履歴 — 達成率は目標が動くと別物になるので履歴で持つ
+// ============================================================
+function renderTargetLog(key){
+  const rows=MONTHS.map((m,i)=>{
+    const c=MONTHLY[m], pv=i>0?MONTHLY[MONTHS[i-1]]:null;
+    const cell=(st)=>{
+      const t=c[st].target, pt=pv?pv[st].target:null;
+      if(pt==null||pt===t) return `${fmt(t)}`;
+      const d=(t-pt)/pt*100;
+      const cls=d>0?'down':'up';   // 目標引き上げ＝達成率には逆風なので色は反転させない
+      return `${fmt(t)} <span class="${cls}" style="font-size:10px">${d>0?'▲':'▼'}${Math.abs(d).toFixed(0)}%</span>`;
+    };
+    return `<tr${m===key?' style="background:rgba(196,151,74,0.05)"':''}>
+      <td class="lg-to">${parseInt(m.split('-')[1])}月</td>
+      <td style="text-align:right">${cell('CREATE')}</td>
+      <td style="text-align:right">${fmt(c.CREATE.sales)}</td>
+      <td style="text-align:right">${c.CREATE.achRate}%</td>
+      <td style="text-align:right">${cell('PLUS')}</td>
+      <td style="text-align:right">${fmt(c.PLUS.sales)}</td>
+      <td style="text-align:right">${c.PLUS.achRate}%</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('targetLogSection').innerHTML=`
+    <div class="card">
+      <div class="card-title">目標の改定履歴 — 達成率を並べて読む前に</div>
+      <table class="ledger">
+        <thead><tr>
+          <th>月</th><th style="text-align:right">CREATE 目標</th><th style="text-align:right">売上</th><th style="text-align:right">達成</th>
+          <th style="text-align:right">PLUS 目標</th><th style="text-align:right">売上</th><th style="text-align:right">達成</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div style="font-size:10px;color:#777;margin-top:12px;line-height:1.6">
+        目標が動いた月は達成率が前月と同じ土俵ではありません。▲＝引き上げ／▼＝下方修正。
       </div>
     </div>`;
 }
@@ -1606,6 +1753,7 @@ function renderGroup(key, prevKey) {
   // GROUP個人総卓数ランキング
   renderVolRank('groupVolRankTable', allCast, key, prevKey, true);
   applyRowLimit('groupVolRankTable','groupVolRankMore',10);
+  renderTargetLog(key);
 
   // Compare table
   document.getElementById('groupCmpTable').innerHTML=`
@@ -1688,6 +1836,7 @@ function renderCreate(key, prevKey) {
   const mk=mKey(key);
 
   renderStoreIntel('createIntel', CREATE_INDIV, '本店', key);
+  renderFunnel('createFunnel','CREATE',CREATE_INDIV,'本店');
 
   renderStoreAnalysis('createAnalysis','CREATE',key,prevKey);
 
@@ -1733,6 +1882,7 @@ function renderCreate(key, prevKey) {
   // 顧客数・顧客単価推移
   if(cCust) cCust.destroy();
   cCust=makeCustChart('cCustChart','CREATE','#c4974a');
+  document.getElementById('cChurnNote').innerHTML=churnNote('CREATE',key);
 
   // Individual table — sorted by current month, dynamic columns (last 3 months)
   const curMNum=parseInt(key.split('-')[1]);
@@ -1766,6 +1916,7 @@ function renderPlus(key, prevKey) {
   const mk=mKey(key);
 
   renderStoreIntel('plusIntel', PLUS_INDIV, 'PLUS', key);
+  renderFunnel('plusFunnel','PLUS',PLUS_INDIV,'PLUS');
 
   renderStoreAnalysis('plusAnalysis','PLUS',key,prevKey);
 
@@ -1812,6 +1963,7 @@ function renderPlus(key, prevKey) {
   // 顧客数・顧客単価推移
   if(pCust) pCust.destroy();
   pCust=makeCustChart('pCustChart','PLUS','#7aadaa');
+  document.getElementById('pChurnNote').innerHTML=churnNote('PLUS',key);
 
   // Individual
   const curMNumP=parseInt(key.split('-')[1]);
@@ -1874,7 +2026,17 @@ function renderReport(key) {
     return;
   }
 
-  function storeCard(d, label, color, prevNext) {
+  // 同じ課題が何ヶ月続いているか。課題は放置されると課題でなくなる
+  function issueStreak(storeKeyLower, text){
+    const norm=x=>(x||'').replace(/\s+/g,'');
+    let n=1;
+    for(let i=curIdx-1;i>=0;i--){
+      const prev=MONTHLY_REPORTS[MONTHS[i]]?.[storeKeyLower]?.issues||[];
+      if(prev.some(x=>norm(x)===norm(text))) n++; else break;
+    }
+    return n;
+  }
+  function storeCard(d, label, color, prevNext, storeKeyLower) {
     if (!d) return '<div class="card" style="text-align:center;color:#444;padding:30px">データなし</div>';
     const row = (items,c='#bbb') => (items||[]).map(i=>`<div style="padding:5px 0;border-bottom:1px solid #1e1e1e;font-size:12px;color:${c};line-height:1.5">${i}</div>`).join('');
     const evtRows = (d.events||[]).map(e=>`
@@ -1903,7 +2065,10 @@ function renderReport(key) {
         </div>
         <div>
           <div style="font-size:9px;color:#c76b6b;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">▼ 課題</div>
-          ${row(d.issues,'#bbb')||'<div style="font-size:11px;color:#444">—</div>'}
+          ${(d.issues||[]).length?(d.issues||[]).map(i=>{
+            const n=issueStreak(storeKeyLower,i);
+            return `<div style="padding:5px 0;border-bottom:1px solid #1e1e1e;font-size:12px;color:#bbb;line-height:1.5">${i}${n>=2?`<span class="target-badge">${n}ヶ月連続</span>`:''}</div>`;
+          }).join(''):'<div style="font-size:11px;color:#444">—</div>'}
         </div>
       </div>
       <div style="margin-bottom:14px">
@@ -1935,8 +2100,8 @@ function renderReport(key) {
 
   const prevR = curIdx>0 ? MONTHLY_REPORTS[MONTHS[curIdx-1]] : null;
   document.getElementById('reportStoreCards').innerHTML =
-    storeCard(r.create,'CREATE','#c4974a', prevR&&prevR.create?prevR.create.nextTheme:null) +
-    storeCard(r.plus,'CREATE PLUS','#7aadaa', prevR&&prevR.plus?prevR.plus.nextTheme:null);
+    storeCard(r.create,'CREATE','#c4974a', prevR&&prevR.create?prevR.create.nextTheme:null, 'create') +
+    storeCard(r.plus,'CREATE PLUS','#7aadaa', prevR&&prevR.plus?prevR.plus.nextTheme:null, 'plus');
 }
 
 // ============================================================
