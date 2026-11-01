@@ -394,7 +394,6 @@ body{
     <div class="card-title">店舗比較サマリー</div>
     <table class="dtable" id="groupCmpTable"></table>
   </div>
-  <div id="targetLogSection"></div>
   <div class="card">
     <div class="card-title">GROUP 個人売上ランキング — 当月</div>
     <table class="dtable" id="groupRankTable"></table>
@@ -1577,45 +1576,6 @@ function renderLedger(key, prevKey){
 }
 
 // ============================================================
-// 目標の改定履歴 — 達成率は目標が動くと別物になるので履歴で持つ
-// ============================================================
-function renderTargetLog(key){
-  const rows=MONTHS.map((m,i)=>{
-    const c=MONTHLY[m], pv=i>0?MONTHLY[MONTHS[i-1]]:null;
-    const cell=(st)=>{
-      const t=c[st].target, pt=pv?pv[st].target:null;
-      if(pt==null||pt===t) return `${fmt(t)}`;
-      const d=(t-pt)/pt*100;
-      const cls=d>0?'down':'up';   // 目標引き上げ＝達成率には逆風なので色は反転させない
-      return `${fmt(t)} <span class="${cls}" style="font-size:10px">${d>0?'▲':'▼'}${Math.abs(d).toFixed(0)}%</span>`;
-    };
-    return `<tr${m===key?' style="background:rgba(196,151,74,0.05)"':''}>
-      <td class="lg-to">${parseInt(m.split('-')[1])}月</td>
-      <td style="text-align:right">${cell('CREATE')}</td>
-      <td style="text-align:right">${fmt(c.CREATE.sales)}</td>
-      <td style="text-align:right">${c.CREATE.achRate}%</td>
-      <td style="text-align:right">${cell('PLUS')}</td>
-      <td style="text-align:right">${fmt(c.PLUS.sales)}</td>
-      <td style="text-align:right">${c.PLUS.achRate}%</td>
-    </tr>`;
-  }).join('');
-  document.getElementById('targetLogSection').innerHTML=`
-    <div class="card">
-      <div class="card-title">目標の改定履歴 — 達成率を並べて読む前に</div>
-      <table class="ledger">
-        <thead><tr>
-          <th>月</th><th style="text-align:right">CREATE 目標</th><th style="text-align:right">売上</th><th style="text-align:right">達成</th>
-          <th style="text-align:right">PLUS 目標</th><th style="text-align:right">売上</th><th style="text-align:right">達成</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <div style="font-size:10px;color:#777;margin-top:12px;line-height:1.6">
-        目標が動いた月は達成率が前月と同じ土俵ではありません。▲＝引き上げ／▼＝下方修正。
-      </div>
-    </div>`;
-}
-
-// ============================================================
 // 一行判定
 // ============================================================
 function renderVerdict(key){
@@ -1797,7 +1757,6 @@ function renderGroup(key, prevKey) {
   // GROUP個人総卓数ランキング
   renderVolRank('groupVolRankTable', allCast, key, prevKey, true);
   applyRowLimit('groupVolRankTable','groupVolRankMore',10);
-  renderTargetLog(key);
 
   // Compare table
   document.getElementById('groupCmpTable').innerHTML=`
